@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="background">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D viewer</title>
+
+  <!-- Load your external CSS with the .background gradient -->
+  <link rel="stylesheet" href="custom.css">
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+      background: transparent; /* let the html/.background show through */
+      color: #eee;
+    }
+    #ui {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #status {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    button.active {
+      outline: 2px solid #d98a4f;
+    }
+    #fileInput {
+      display: none;
+    }
+    #dropOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #d98a4f;
+      color: #d98a4f;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    #dropOverlay.active {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body>
+  <img src="grim.png" style="position: absolute; width: auto; height: 400px; left: 0px; top: -10px; overflow: clip; z-index: -1;">
+  <img src="grim.png" style="position: absolute; width: auto; height: 400px; right: 0px; top: -10px; overflow: clip; transform: scaleX(-1); z-index: -1;">
+  <div id="ui">
+    <button id="importBtn">Import model</button>
+    <input id="fileInput" type="file" accept=".glb,.gltf,.obj,.fbx" />
+    <button id="rotateBtn">Auto-rotate</button>
+    <button id="wireBtn">Wireframe</button>
+    <button id="resetBtn">Reset view</button>
+    <span id="status">Showing default mesh</span>
+  </div>
+  <div id="dropOverlay"><div>Drop model to load</div></div>
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Libraries -->
+ 
+
+  <!-- Your app logic -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>

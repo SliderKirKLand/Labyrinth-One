@@ -1,0 +1,19 @@
+/* Background with gradient overlay, fixed attachment, and diagonal animation */
+.background {
+  background-image: linear-gradient(to bottom, rgba(26, 20, 17, 0.367) 40%, rgba(95, 84, 162, 0.77) 100%), url("daikoglobal2.png");
+  background-attachment: fixed;  
+  
+      animation: diag 60s linear infinite;
+  }
+
+  @keyframes diag {
+    0% {
+      background-position-x: 0%;
+      background-position-y: 0%;
+    }
+    100% {
+      background-position-x: 100%;
+      background-position-y: 100%;
+    }
+}
+
