@@ -1,87 +1,268 @@
-<!DOCTYPE html>
-<html lang="en" class="background">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D viewer</title>
-
-  <!-- Load your external CSS with the .background gradient -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desktop</title>
   <link rel="stylesheet" href="custom.css">
-
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: system-ui, sans-serif;
-      background: transparent; /* let the html/.background show through */
-      color: #eee;
-    }
-    #ui {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 8px;
-      backdrop-filter: blur(8px);
-    }
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    #status {
-      font-size: 12px;
-      opacity: 0.8;
-    }
-    button.active {
-      outline: 2px solid #d98a4f;
-    }
-    #fileInput {
-      display: none;
-    }
-    #dropOverlay {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      border: 2px dashed #d98a4f;
-      color: #d98a4f;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    #dropOverlay.active {
-      display: flex;
-    }
-  </style>
 </head>
-
 <body>
-  <img src="grim.png" style="position: absolute; width: auto; height: 400px; left: 0px; top: -10px; overflow: clip; z-index: -1;">
-  <img src="grim.png" style="position: absolute; width: auto; height: 400px; right: 0px; top: -10px; overflow: clip; transform: scaleX(-1); z-index: -1;">
-  <div id="ui">
-    <button id="importBtn">Import model</button>
-    <input id="fileInput" type="file" accept=".glb,.gltf,.obj,.fbx" />
-    <button id="rotateBtn">Auto-rotate</button>
-    <button id="wireBtn">Wireframe</button>
-    <button id="resetBtn">Reset view</button>
-    <span id="status">Showing default mesh</span>
-  </div>
-  <div id="dropOverlay"><div>Drop model to load</div></div>
-  <canvas id="three-canvas"></canvas>
+  <main class="desktop" id="desktop" aria-label="Web desktop">
+    <div class="wallpaper-shade"></div>
 
-  <!-- Libraries -->
- 
+    <section class="desktop-icons" aria-label="Desktop shortcuts">
+      <button class="desktop-icon" data-open="viewerWindow">
+        <span class="icon-tile viewer-icon " aria-hidden="true"></span>
+        <span>Model Viewer</span>
+      </button>
 
-  <!-- Your app logic -->
+      <button class="desktop-icon" data-open="computerWindow">
+        <span class="icon-tile image-icon computer-icon" aria-hidden="true"></span>
+        <span>Computer</span>
+      </button>
+
+      <button class="desktop-icon" data-open="musicWindow">
+        <span class="icon-tile image-icon disk-icon" aria-hidden="true"></span>
+        <span>Music</span>
+      </button>
+
+
+      <button class="desktop-icon" data-open="notesWindow">
+        <span class="icon-tile notes-icon" aria-hidden="true"></span>
+        <span>Notepad</span>
+      </button>
+
+      <button class="desktop-icon" data-open="aboutWindow">
+        <span class="icon-tile info-icon" aria-hidden="true"></span>
+        <span>About</span>
+      </button>
+    </section>
+
+    <section class="app-window viewer-window is-active" id="viewerWindow" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon viewer-icon"></span>
+          <span>Model Viewer</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="app-toolbar">
+        <button id="importBtn" class="toolbar-button primary">Import model</button>
+        <input id="fileInput" type="file" accept=".glb,.gltf,.obj,.fbx">
+        <button id="rotateBtn" class="toolbar-button">Auto rotate</button>
+        <button id="wireBtn" class="toolbar-button">Wireframe</button>
+        <button id="resetBtn" class="toolbar-button">Reset view</button>
+        <span id="status" class="status">Showing default mesh</span>
+      </div>
+
+      <div class="viewer-stage" id="viewerStage">
+        <canvas id="three-canvas"></canvas>
+        <div class="viewer-hint">Drag to rotate · Scroll to zoom · Right drag to pan</div>
+        <div id="dropOverlay"><div>Drop model to load</div></div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window computer-window" id="computerWindow" data-app="Computer" style="--x: 18vw; --y: 14vh; --w: 560px; --h: 430px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-icon computer-icon"></span>
+          <span>Computer Specifications</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="computer-content">
+        <div class="computer-hero">
+          <span class="large-app-image computer-icon"></span>
+          <div>
+            <h1>Workstation</h1>
+            <p>System overview and hardware information.</p>
+          </div>
+        </div>
+        <dl class="spec-grid">
+          <div><dt>Operating system</dt><dd>LABYRINTH OS 1.0</dd></div>
+          <div><dt>Processor</dt><dd>Intel Pentium II 333</dd></div>
+          <div><dt>Memory</dt><dd>64 MB SDRAM</dd></div>
+          <div><dt>Graphics</dt><dd>Intel 740 Gfx</dd></div>
+          <div><dt>Storage</dt><dd>4 GB hard disk</dd></div>
+          <div><dt>Display</dt><dd>800 x 600</dd></div>
+          <div><dt>Device name</dt><dd>YOUR-DESKTOP</dd></div>
+          <div><dt>System type</dt><dd>32-bit workstation</dd></div>
+        </dl>
+
+        <section class="wallpaper-settings" aria-labelledby="wallpaperHeading">
+          <div class="settings-heading">
+            <div>
+              <h2 id="wallpaperHeading">Desktop wallpaper</h2>
+              <p>Choose from the wallpapers included by the site owner.</p>
+            </div>
+            <button class="toolbar-button" id="resetWallpaperBtn" type="button">Default</button>
+          </div>
+
+          <div class="wallpaper-grid" id="wallpaperGrid">
+
+            <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/bg1.png" data-wallpaper-name="Background 1">
+              <span class="wallpaper-preview" style="background-image:url('./Assets/bg1.png')"></span>
+              <span>Background 1</span>
+            </button>
+            <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/bg2.png" data-wallpaper-name="Background 2">
+              <span class="wallpaper-preview" style="background-image:url('./Assets/bg2.png')"></span>
+              <span>Background 2</span>
+            </button>
+              <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/daikoglobal2.png" data-wallpaper-name="Daiko">
+              <span class="wallpaper-preview" style="background-image:url('./Assets/daikoglobal2.png')"></span>
+              <span>Daiko</span>
+            </button>
+          </div>
+          <p class="wallpaper-status" id="wallpaperStatus">Current wallpaper: Daiko</p>
+        </section>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window music-window" id="musicWindow" data-app="Disk" style="--x: 25vw; --y: 12vh; --w: 620px; --h: 500px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-icon disk-icon"></span>
+          <span>Disk Music Player</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="music-content">
+        <aside class="album-panel">
+          <span class="album-art disk-icon"></span>
+          <h2 id="trackTitle">Hello cro</h2>
+          <p id="trackMeta">Varra</p>
+        </aside>
+
+        <section class="player-panel">
+          <div class="playlist-header">
+            <strong>Playlist</strong>
+            <span>7 tracks</span>
+          </div>
+          <ol class="playlist" id="playlist"></ol>
+
+          <div class="player-controls">
+            <div class="progress-row">
+              <span id="currentTime">0:00</span>
+              <input id="seekBar" type="range" min="0" max="100" value="0">
+              <span id="duration">0:00</span>
+            </div>
+            <div class="transport-row">
+              <button id="shuffleBtn" class="transport-button" title="Shuffle">⤨</button>
+              <button id="previousBtn" class="transport-button" title="Previous">◀◀</button>
+              <button id="playPauseBtn" class="transport-button play-button" title="Play">▶</button>
+              <button id="nextBtn" class="transport-button" title="Next">▶▶</button>
+              <label class="volume-control">Volume <input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+            </div>
+          </div>
+        </section>
+      </div>
+      <audio id="audioPlayer"></audio>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+
+    <section class="app-window notes-window" id="notesWindow" data-app="Notes" style="--x: 20vw; --y: 13vh; --w: 680px; --h: 500px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon notes-icon">N</span>
+          <span>Notes</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="notes-toolbar">
+        <button class="toolbar-button" id="newNoteBtn" type="button">New</button>
+        <button class="toolbar-button" id="deleteNoteBtn" type="button">Delete</button>
+        <span id="noteSaveStatus">Saved</span>
+      </div>
+
+      <div class="notes-content">
+        <aside class="notes-sidebar">
+          <div class="notes-list" id="notesList"></div>
+        </aside>
+
+        <section class="note-editor">
+          <input id="noteTitle" class="note-title" type="text" maxlength="80" placeholder="Note title">
+          <textarea id="noteBody" class="note-body" placeholder="Write your note here..."></textarea>
+        </section>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window about-window" id="aboutWindow" data-app="About" style="--x: 22vw; --y: 18vh; --w: 430px; --h: 310px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title"><span class="mini-app-icon info-icon"></span><span>About</span></div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="about-content">
+        <div class="about-mark">T</div>
+        <div>
+          <h1>Desktop</h1>
+          <p>A browser desktop interface with a Three.js model viewer.</p>
+          <p>Open local GLB, GLTF, OBJ, FBX, and audio files.</p>
+        </div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="start-menu" id="startMenu" hidden>
+      <div class="start-profile">
+        <div class="profile-avatar">T</div>
+        <div><strong>Touch</strong><span>Web workspace</span></div>
+      </div>
+      <div class="start-apps">
+        <button data-open="viewerWindow"><span class="start-icon viewer-icon"></span><span><strong>Model Viewer</strong><small>View and import 3D files</small></span></button>
+        <button data-open="computerWindow"><span class="start-icon image-icon computer-icon"></span><span><strong>Computer</strong><small>View PC specifications</small></span></button>
+        <button data-open="musicWindow"><span class="start-icon image-icon disk-icon"></span><span><strong>Disk</strong><small>Play and shuffle music</small></span></button>
+        <button data-open="notesWindow"><span class="start-icon notes-icon">N</span><span><strong>Notes</strong><small>Write and save notes</small></span></button>
+        <button data-open="aboutWindow"><span class="start-icon info-icon"></span><span><strong>About</strong><small>Project information</small></span></button>
+      </div>
+      <div class="start-footer"><span>Desktop</span><button id="sleepButton">Sleep</button></div>
+    </section>
+
+    <div class="sleep-screen" id="sleepScreen" hidden>
+      <div class="sleep-logo">T</div>
+      <p>Click anywhere to wake</p>
+    </div>
+
+    <footer class="taskbar">
+      <button class="start-button" id="startButton" aria-label="Open launcher"><span class="start-grid"><i></i><i></i><i></i><i></i></span></button>
+      <div class="task-items" id="taskItems">
+        <button class="task-item active" data-task="viewerWindow"><span class="task-app-icon viewer-icon"></span><span>Model Viewer</span></button>
+      </div>
+      <div class="tray">
+        <span class="tray-symbol">◉</span>
+        <span class="tray-symbol">⌁</span>
+        <button class="clock" id="clock" aria-label="Current time"></button>
+      </div>
+    </footer>
+  </main>
+
   <script type="module" src="main.js"></script>
+  <script src="desktop.js"></script>
 </body>
 </html>
