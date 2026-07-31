@@ -50,7 +50,7 @@ body { color: var(--text); background: #191722; user-select: none; }
     repeat;
 
   background-position:
-    left top,
+    right top,
     center,
     0 0;
 
@@ -70,14 +70,14 @@ body { color: var(--text); background: #191722; user-select: none; }
 @keyframes diag {
   from {
     background-position:
-      left top,
+      right top,
       center,
       0 0;
   }
 
   to {
     background-position:
-      left top,
+      right top,
       center,
       100px 100px;
   }
@@ -89,15 +89,59 @@ body { color: var(--text); background: #191722; user-select: none; }
 .desktop-icon:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); }
 .icon-tile, .start-icon, .mini-app-icon, .task-app-icon { display: inline-grid; place-items: center; border-radius: 9px; font-weight: 800; letter-spacing: -.04em; background: linear-gradient(145deg,#a99cff,#6452d0); }
 .icon-tile { width: 46px; height: 46px; font-size: 15px; }
-.image-icon, .info-icon { background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain; }
+.image-icon, .info-icon { background-color: transparent; 
+  background-repeat: 
+  no-repeat; 
+  background-position: center; 
+  background-size: contain; }
 .computer-icon { background-image: url("./Assets/desktop.png"); }
 .disk-icon { background-image: url("./Assets/disk.png"); }
 .info-icon { background-image: url("./Assets/info.png"); }
-.viewer-icon { background-image: url("./Assets/viewer.png"); background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain; color: transparent; box-shadow: none;}
-.notes-icon {background-image: url("./Assets/notes.png"); background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain; color: transparent; box-shadow: none;
+.viewer-icon { 
+  background-image: url("./Assets/viewer.png"); 
+  background-color: transparent; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+  background-size: contain; 
+  color: transparent; 
+  box-shadow: none;
+}
+.notes-icon {
+  background-image: url("./Assets/notes.png"); 
+  background-color: transparent; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+  background-size: contain; 
+  color: transparent; 
+  box-shadow: none;
+}
+.folder-icon, .image-file-icon {
+  background-image: url("./Assets/folder.png");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
+  box-shadow: none;
 }
 
-.app-window { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); min-width: 360px; min-height: 260px; display: flex; flex-direction: column; overflow: hidden; background: rgba(20,19,29,.88); border: 1px solid rgba(255,255,255,.19); border-radius: 12px; box-shadow: 0 28px 75px rgba(0,0,0,.52), inset 0 1px rgba(255,255,255,.08); backdrop-filter: blur(25px) saturate(1.25); z-index: 10; }
+.app-window { position: absolute; 
+  left: var(--x); 
+  top: var(--y); 
+  width: var(--w); 
+  height: var(--h); 
+  min-width: 360px; 
+  min-height: 260px; 
+  display: flex; 
+  flex-direction: column; 
+  overflow: hidden; 
+  background: rgba(20,19,29,.88); 
+  border: 1px solid rgba(255,255,255,.19); 
+  border-radius: 12px; 
+  box-shadow: 0 28px 75px rgba(0,0,0,.52), inset 0 1px rgba(255,255,255,.08); 
+  backdrop-filter: blur(25px) saturate(1.25); 
+  z-index: 10; 
+}
 .app-window.is-active { border-color: rgba(216,208,255,.36); }
 .app-window.is-maximized { left: 0 !important; top: 0 !important; width: 100vw !important; height: calc(100vh - var(--taskbar-height)) !important; border-radius: 0; }
 .app-window.is-minimized, .app-window[hidden] { display: none; }
@@ -155,7 +199,7 @@ body { color: var(--text); background: #191722; user-select: none; }
 .playlist { flex: 1; min-height: 0; overflow: auto; list-style: none; margin: 0; padding: 8px; }
 .playlist li { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; }
 .playlist li:hover, .playlist li.active { background: rgba(255,255,255,.09); }
-.playlist li.active { color: #d8d1ff; }
+.playlist li.active { color: #1831b0; }
 .playlist-empty { color: var(--muted); cursor: default !important; }
 .player-controls { padding: 14px; border-top: 1px solid rgba(255,255,255,.08); background: rgba(8,8,12,.2); }
 .progress-row, .transport-row { display: flex; align-items: center; gap: 10px; }
@@ -242,7 +286,19 @@ body {
     inset 1px 1px var(--win98-mid-light),
     inset -1px -1px var(--win98-dark),
     3px 3px 0 rgba(0, 0, 0, 0.45);
-  backdrop-filter: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: translateZ(0);
+  will-change: left, top;
+}
+
+.app-window.is-dragging {
+  box-shadow:
+    inset 1px 1px var(--win98-mid-light),
+    inset -1px -1px var(--win98-dark),
+    2px 2px 0 rgba(0, 0, 0, 0.35);
+
+  outline: 1px solid transparent;
 }
 
 .app-window.is-active {
@@ -804,29 +860,6 @@ body::after {
   }
 }
 
-/* Moving refresh line */
-.desktop::after {
-  content: "";
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -12%;
-
-  height: 10%;
-  z-index: 50000;
-
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 255, 255, 0.025),
-    transparent
-  );
-
-  pointer-events: none;
-
-  animation: crt-refresh 8s linear infinite;
-}
 
 @keyframes crt-refresh {
   from {
@@ -1019,4 +1052,491 @@ body::after {
 .playlist li.active .track-number,
 .playlist li.active .track-details small {
   color: inherit;
+}
+
+/* Square Windows 98 music controls */
+.music-window .transport-button,
+.music-window .play-button {
+  border-radius: 0;
+
+  border: 2px solid;
+  border-color:
+    var(--win98-light)
+    var(--win98-black)
+    var(--win98-black)
+    var(--win98-light);
+
+  background: var(--win98-gray);
+  color: #000;
+  box-shadow: none;
+}
+
+.music-window .transport-button:active,
+.music-window .play-button:active,
+.music-window .transport-button.active {
+  border-color:
+    var(--win98-black)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-black);
+}
+
+.music-window .play-button {
+  width: 46px;
+  height: 38px;
+}
+
+/* Square music slider handles */
+.music-window input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 18px;
+  background: transparent;
+}
+
+/* Track */
+.music-window input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  background: #808080;
+  border: 1px solid #000;
+}
+
+.music-window input[type="range"]::-moz-range-track {
+  height: 5px;
+  background: #808080;
+  border: 1px solid #000;
+}
+
+/* Square handle */
+.music-window input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 18px;
+  margin-top: -7px;
+  border: 2px solid;
+  border-color:
+    #ffffff
+    #000000
+    #000000
+    #ffffff;
+  border-radius: 0;
+  background: #c0c0c0;
+}
+
+.music-window input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 18px;
+  border: 2px solid;
+  border-color:
+    #ffffff
+    #000000
+    #000000
+    #ffffff;
+  border-radius: 0;
+  background: #c0c0c0;
+}
+
+/* Keep Disk controls fixed at the bottom */
+.music-window .music-content {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.music-window .player-panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.music-window .playlist-header {
+  flex: 0 0 auto;
+}
+
+.music-window .playlist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.music-window .player-controls {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-top: auto;
+  padding: 10px;
+  background: var(--win98-gray);
+}
+
+/* Keep the progress slider aligned */
+.music-window .progress-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 38px minmax(60px, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+}
+
+.music-window #seekBar {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Keep buttons and volume controls inside the window */
+.music-window .transport-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.music-window .transport-button {
+  flex: 0 0 auto;
+}
+
+.music-window .volume-control {
+  min-width: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.music-window #volumeBar {
+  width: clamp(60px, 10vw, 100px);
+  min-width: 50px;
+}
+
+/* Puzzle folder app */
+
+.image-file-icon {
+  background-image: url("./Assets/puzzle1.png");
+}
+
+.folder-toolbar {
+  flex: 0 0 28px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--win98-light);
+  border-bottom: 2px solid var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+  font-size: 11px;
+}
+
+.folder-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 110px);
+  align-content: start;
+  gap: 12px;
+  padding: 14px;
+  margin: 3px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+}
+
+.puzzle-file {
+  width: 110px;
+  min-height: 125px;
+  padding: 6px;
+  border: 1px dotted transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  cursor: default;
+}
+
+.puzzle-file:hover,
+.puzzle-file:focus {
+  border-color: #000;
+  background: #000080;
+  color: #fff;
+}
+
+.puzzle-file img {
+  width: 82px;
+  height: 82px;
+  object-fit: cover;
+  border: 1px solid #808080;
+  background: #fff;
+}
+
+.puzzle-file span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.puzzle-viewer-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin: 3px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #202020;
+  display: grid;
+  place-items: center;
+}
+
+.puzzle-viewer-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Prevent black drag artifacts */
+.desktop {
+  transform: none !important;
+}
+
+.app-window {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  contain: layout paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.app-window.is-dragging {
+  box-shadow: none;
+}
+
+/* Interactive puzzle hotspots and trivia */
+.puzzle-test-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 7px;
+  border-top: 1px solid var(--win98-light);
+  border-bottom: 2px solid var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+  font-size: 11px;
+}
+
+.puzzle-test-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.puzzle-viewer-content {
+  position: relative;
+  overflow: auto;
+}
+
+.puzzle-map {
+  position: relative;
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 897 / 1478;
+  line-height: 0;
+}
+
+.puzzle-map > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.puzzle-hotspot {
+  position: absolute;
+  z-index: 5;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hotspot-red { left: 13.8%; top: 13.7%; width: 10%; height: 6.8%; }
+.hotspot-yellow { left: 85.8%; top: 18.9%; width: 8.5%; height: 5.2%; }
+.hotspot-orange { left: 20.4%; top: 70.4%; width: 10.5%; height: 7.3%; }
+.hotspot-green { left: 73.7%; top: 80.4%; width: 8.7%; height: 6.8%; }
+.hotspot-white { left: 86.8%; top: 49.8%; width: 10%; height: 7%; border-radius: 50%; }
+
+.puzzle-map.show-hotspots .puzzle-hotspot {
+  border-color: #ff00ff;
+  background: rgba(255, 0, 255, 0.28);
+}
+
+.puzzle-map.show-hotspots .puzzle-hotspot::after {
+  content: attr(data-puzzle);
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  background: #000;
+  color: #fff;
+  font: 10px "MS Sans Serif", Tahoma, sans-serif;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.puzzle-hotspot.is-complete {
+  pointer-events: none;
+}
+
+.puzzle-map.show-hotspots .puzzle-hotspot.is-complete {
+  border-color: #00ff00;
+  background: rgba(0, 255, 0, 0.28);
+}
+
+.puzzle-hotspot.is-complete::before {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(0, 128, 0, 0.62);
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.puzzle-hotspot:focus-visible {
+  outline: 3px solid #ffff00;
+  outline-offset: 2px;
+}
+
+.trivia-icon {
+  display: inline-grid;
+  place-items: center;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  font-weight: bold;
+}
+
+.trivia-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.trivia-progress {
+  margin: 0 0 12px;
+  padding: 5px 7px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+  font-size: 11px;
+}
+
+.trivia-content h2 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.trivia-answers {
+  display: grid;
+  gap: 7px;
+}
+
+.trivia-answer {
+  width: 100%;
+  padding: 7px 9px;
+  border: 2px solid;
+  border-color: var(--win98-light) var(--win98-black) var(--win98-black) var(--win98-light);
+  border-radius: 0;
+  background: var(--win98-gray);
+  color: #000;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trivia-answer:active {
+  border-color: var(--win98-black) var(--win98-light) var(--win98-light) var(--win98-black);
+}
+
+.trivia-answer:disabled {
+  color: #777;
+  cursor: not-allowed;
+}
+
+.trivia-message {
+  min-height: 20px;
+  margin: 12px 0 0;
+  font-weight: bold;
+}
+
+.trivia-message.correct { color: #006400; }
+.trivia-message.wrong { color: #a00000; }
+
+.trivia-lockout {
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid #800000;
+  background: #fff;
+  color: #800000;
+  font-size: 12px;
+}
+
+
+/* Completed puzzle hotspots remain clickable */
+.puzzle-hotspot.is-complete {
+  pointer-events: auto;
+}
+
+/* Clue image window */
+.clue-viewer-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin: 3px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.clue-viewer-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.trivia-answer.correct-answer,
+.trivia-answer.correct-answer:disabled {
+  background: #008000;
+  color: #fff;
+  border-color: #ffffff #000000 #000000 #ffffff;
 }

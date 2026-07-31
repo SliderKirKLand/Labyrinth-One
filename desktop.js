@@ -12,7 +12,10 @@
     computerWindow: 'computer-icon',
     musicWindow: 'disk-icon',
     aboutWindow: 'info-icon',
-    notesWindow: 'notes-icon'
+    notesWindow: 'notes-icon',
+    puzzleFolderWindow: 'folder-icon',
+    puzzleViewerWindow: 'image-file-icon',
+    triviaWindow: 'trivia-icon'
   };
 
   /*
@@ -870,6 +873,317 @@
 
   renderPlaylist();
   loadTrack(0, false);
+
+  /*
+   * Puzzle folder and image viewer
+   */
+
+  const puzzleViewerImage = document.getElementById('puzzleViewerImage');
+  const puzzleViewerTitle = document.getElementById('puzzleViewerTitle');
+  const puzzleViewerWindow = document.getElementById('puzzleViewerWindow');
+
+  document.querySelectorAll('[data-puzzle-src]').forEach(fileButton => {
+    fileButton.addEventListener('click', () => {
+      const src = fileButton.dataset.puzzleSrc;
+      const title = fileButton.dataset.puzzleTitle || 'Puzzle';
+
+      if (puzzleViewerImage) {
+        puzzleViewerImage.src = src;
+        puzzleViewerImage.alt = title;
+      }
+
+      if (puzzleViewerTitle) {
+        puzzleViewerTitle.textContent = title;
+      }
+
+      if (puzzleViewerWindow) {
+        puzzleViewerWindow.dataset.app = title;
+      }
+
+      openWindow('puzzleViewerWindow');
+    });
+  });
+
+  /*
+   * Interactive puzzle trivia
+   */
+
+  const puzzleMap = document.getElementById('puzzleMap');
+  const hotspotToggle = document.getElementById('hotspotToggle');
+  const resetPuzzleProgress = document.getElementById('resetPuzzleProgress');
+  const triviaWindowTitle = document.getElementById('triviaWindowTitle');
+  const triviaQuestion = document.getElementById('triviaQuestion');
+  const triviaAnswers = document.getElementById('triviaAnswers');
+  const triviaMessage = document.getElementById('triviaMessage');
+  const triviaProgress = document.getElementById('triviaProgress');
+  const triviaLockout = document.getElementById('triviaLockout');
+  const triviaCountdown = document.getElementById('triviaCountdown');
+
+  if (hotspotToggle) hotspotToggle.checked = false;
+  puzzleMap?.classList.remove('show-hotspots');
+
+  const puzzleQuestions = {
+    red: {
+      title: 'Red Line',
+      question: 'Which planet is known as the Red Planet?',
+      answers: ['Venus', 'Mars', 'Jupiter', 'Mercury'],
+      correct: 1,
+      penalty: 10
+    },
+    yellow: {
+      title: 'Yellow Line',
+      question: 'How many sides does a triangle have?',
+      answers: ['Two', 'Three', 'Four', 'Five'],
+      correct: 1,
+      penalty: 10
+    },
+    orange: {
+      title: 'Orange Line',
+      question: 'What color is created by mixing red and yellow?',
+      answers: ['Green', 'Purple', 'Orange', 'Blue'],
+      correct: 2,
+      penalty: 10
+    },
+    green: {
+      title: 'Green Line',
+      question: 'Which gas do plants absorb from the atmosphere?',
+      answers: ['Oxygen', 'Hydrogen', 'Carbon dioxide', 'Helium'],
+      correct: 2,
+      penalty: 10
+    },
+    white: {
+      title: 'Final Station',
+      question: 'A train travels 120 miles in 2 hours. At the same speed, how far will it travel in 3.5 hours?',
+      answers: ['180 miles', '200 miles', '210 miles', '240 miles'],
+      correct: 2,
+      penalty: 20,
+      final: true
+    }
+  };
+
+  const requiredPuzzleKeys = ['red', 'yellow', 'orange', 'green'];
+  const puzzleStorageKey = 'touch-desktop-puzzle-progress';
+  const completedPuzzles = new Set();
+  localStorage.removeItem(puzzleStorageKey);
+  let lockoutTimer = null;
+  let lockoutUntil = 0;
+  let lockedPuzzleKey = null;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(puzzleStorageKey) || '[]');
+    if (Array.isArray(saved)) {
+      saved.forEach(key => {
+        if (puzzleQuestions[key]) completedPuzzles.add(key);
+      });
+    }
+  } catch (error) {
+    console.warn('Puzzle progress was not loaded.', error);
+  }
+
+  function savePuzzleProgress() {
+    try {
+      localStorage.setItem(puzzleStorageKey, JSON.stringify([...completedPuzzles]));
+    } catch (error) {
+      console.warn('Puzzle progress was not saved.', error);
+    }
+  }
+
+  function updatePuzzleProgress() {
+    const count = requiredPuzzleKeys.filter(key => completedPuzzles.has(key)).length;
+    if (triviaProgress) triviaProgress.textContent = `Completed: ${count} / 4`;
+
+    puzzleMap?.querySelectorAll('.puzzle-hotspot').forEach(hotspot => {
+      hotspot.classList.toggle('is-complete', completedPuzzles.has(hotspot.dataset.puzzle));
+    });
+  }
+
+  function allRegularPuzzlesComplete() {
+    return requiredPuzzleKeys.every(key => completedPuzzles.has(key));
+  }
+
+  function isPuzzleLocked() {
+    return Date.now() < lockoutUntil;
+  }
+
+  function stopLockoutTimer() {
+    if (lockoutTimer) window.clearInterval(lockoutTimer);
+    lockoutTimer = null;
+  }
+
+  function finishPuzzleLockout() {
+    stopLockoutTimer();
+    lockoutUntil = 0;
+    lockedPuzzleKey = null;
+    if (triviaLockout) triviaLockout.hidden = true;
+    setAnswersDisabled(false);
+    showPuzzleMessage('You may try again.');
+  }
+
+  function setAnswersDisabled(disabled) {
+    triviaAnswers?.querySelectorAll('.trivia-answer').forEach(button => {
+      button.disabled = disabled;
+    });
+  }
+
+  function showPuzzleMessage(message, type = '') {
+    if (!triviaMessage) return;
+    triviaMessage.textContent = message;
+    triviaMessage.className = 'trivia-message';
+    if (type) triviaMessage.classList.add(type);
+  }
+
+  function updateLockoutDisplay() {
+    if (!isPuzzleLocked()) {
+      finishPuzzleLockout();
+      return;
+    }
+
+    const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+    if (triviaLockout) triviaLockout.hidden = false;
+    if (triviaCountdown) triviaCountdown.textContent = String(remaining);
+    setAnswersDisabled(true);
+  }
+
+  function beginPuzzleLockout(key, seconds) {
+    stopLockoutTimer();
+    lockedPuzzleKey = key;
+    lockoutUntil = Date.now() + seconds * 1000;
+    updateLockoutDisplay();
+    lockoutTimer = window.setInterval(updateLockoutDisplay, 250);
+  }
+
+  function openTriviaWindow() {
+    openWindow('triviaWindow');
+  }
+
+  function openClueWindow() {
+    openWindow('clueWindow');
+  }
+
+  function markPuzzleComplete(key) {
+    completedPuzzles.add(key);
+    savePuzzleProgress();
+    updatePuzzleProgress();
+  }
+
+  function renderPuzzleQuestion(key, completedView = false) {
+    const puzzle = puzzleQuestions[key];
+    if (!puzzle || !triviaAnswers) return;
+
+    if (triviaWindowTitle) triviaWindowTitle.textContent = puzzle.title;
+    if (triviaQuestion) triviaQuestion.textContent = puzzle.question;
+    triviaAnswers.replaceChildren();
+    updatePuzzleProgress();
+
+    puzzle.answers.forEach((answer, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'trivia-answer';
+      button.textContent = answer;
+
+      if (completedView) {
+        button.disabled = true;
+        if (index === puzzle.correct) button.classList.add('correct-answer');
+      } else {
+        button.addEventListener('click', () => {
+          if (isPuzzleLocked()) {
+            updateLockoutDisplay();
+            return;
+          }
+
+          if (index === puzzle.correct) {
+            markPuzzleComplete(key);
+            setAnswersDisabled(true);
+            button.classList.add('correct-answer');
+            showPuzzleMessage(
+              puzzle.final ? 'Correct. Clue #2 has been unlocked.' : 'Correct. This station is complete.',
+              'correct'
+            );
+            if (puzzle.final) openClueWindow();
+            return;
+          }
+
+          showPuzzleMessage(`Incorrect. Locked for ${puzzle.penalty} seconds.`, 'wrong');
+          beginPuzzleLockout(key, puzzle.penalty);
+        });
+      }
+
+      triviaAnswers.append(button);
+    });
+
+    if (completedView) {
+      showPuzzleMessage(
+        puzzle.final ? 'Completed. The correct answer is shown. Clue #2 is available.' : 'Completed. The correct answer is shown.',
+        'correct'
+      );
+    } else if (isPuzzleLocked()) {
+      showPuzzleMessage('The puzzle is still locked. Wait for the timer to finish.', 'wrong');
+      updateLockoutDisplay();
+    } else {
+      if (triviaLockout) triviaLockout.hidden = true;
+      showPuzzleMessage('');
+    }
+
+    openTriviaWindow();
+  }
+
+  function showWhitePuzzleLockedMessage() {
+    if (triviaWindowTitle) triviaWindowTitle.textContent = 'Final Station Locked';
+    if (triviaQuestion) {
+      triviaQuestion.textContent = 'There are things to be seen around.';
+    }
+    triviaAnswers?.replaceChildren();
+    updatePuzzleProgress();
+    showPuzzleMessage('Nothing to see here.', 'wrong');
+    if (isPuzzleLocked()) updateLockoutDisplay();
+    openTriviaWindow();
+  }
+
+  puzzleMap?.addEventListener('click', event => {
+    const hotspot = event.target.closest('.puzzle-hotspot');
+    if (!hotspot) return;
+
+    const key = hotspot.dataset.puzzle;
+    if (!key) return;
+
+    if (isPuzzleLocked()) {
+      renderPuzzleQuestion(lockedPuzzleKey || key, false);
+      return;
+    }
+
+    if (key === 'white' && !allRegularPuzzlesComplete()) {
+      showWhitePuzzleLockedMessage();
+      return;
+    }
+
+    if (completedPuzzles.has(key)) {
+      if (key === 'white') {
+        openClueWindow();
+      } else {
+        renderPuzzleQuestion(key, true);
+      }
+      return;
+    }
+
+    renderPuzzleQuestion(key, false);
+  });
+
+  hotspotToggle?.addEventListener('change', () => {
+    puzzleMap?.classList.toggle('show-hotspots', hotspotToggle.checked);
+  });
+
+  resetPuzzleProgress?.addEventListener('click', () => {
+    stopLockoutTimer();
+    lockoutUntil = 0;
+    lockedPuzzleKey = null;
+    if (triviaLockout) triviaLockout.hidden = true;
+    completedPuzzles.clear();
+    savePuzzleProgress();
+    updatePuzzleProgress();
+    showPuzzleMessage('Puzzle progress reset.');
+  });
+
+  updatePuzzleProgress();
 
   /*
    * Clean the initial taskbar state.

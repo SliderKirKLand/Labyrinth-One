@@ -23,13 +23,18 @@
 
       <button class="desktop-icon" data-open="musicWindow">
         <span class="icon-tile image-icon disk-icon" aria-hidden="true"></span>
-        <span>Music</span>
+        <span>Disk</span>
       </button>
 
 
       <button class="desktop-icon" data-open="notesWindow">
         <span class="icon-tile notes-icon" aria-hidden="true"></span>
         <span>Notepad</span>
+      </button>
+
+      <button class="desktop-icon" data-open="puzzleFolderWindow">
+        <span class="icon-tile folder-icon" aria-hidden="true"></span>
+        <span>New Folder</span>
       </button>
 
       <button class="desktop-icon" data-open="aboutWindow">
@@ -145,16 +150,20 @@
       <div class="music-content">
         <aside class="album-panel">
           <span class="album-art disk-icon"></span>
-          <h2 id="trackTitle">Hello cro</h2>
-          <p id="trackMeta">Varra</p>
+          <h2 id="trackTitle">No track selected</h2>
+          <p id="trackMeta">Add music files to begin</p>
+          <button class="toolbar-button primary" id="addMusicBtn">Add music</button>
+          <input id="musicInput" type="file" accept="audio/*" multiple>
         </aside>
 
         <section class="player-panel">
           <div class="playlist-header">
             <strong>Playlist</strong>
-            <span>7 tracks</span>
+            <button class="toolbar-button" id="clearPlaylistBtn">Clear</button>
           </div>
-          <ol class="playlist" id="playlist"></ol>
+          <ol class="playlist" id="playlist">
+            <li class="playlist-empty">Your selected tracks appear here.</li>
+          </ol>
 
           <div class="player-controls">
             <div class="progress-row">
@@ -209,6 +218,102 @@
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
 
+    <section class="app-window puzzle-folder-window" id="puzzleFolderWindow" data-app="Puzzles" style="--x: 17vw; --y: 14vh; --w: 560px; --h: 420px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon folder-icon"></span>
+          <span>New Folder</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="folder-toolbar">Things are hidden in plainsight</div>
+      <div class="folder-content">
+        <button class="puzzle-file" type="button" data-puzzle-src="./Assets/puzzle1.png" data-puzzle-title="SF Subway.png">
+          <img src="./Assets/puzzle1.png" alt="Puzzle 1 thumbnail">
+          <span>SF Subway.png</span>
+        </button>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window puzzle-viewer-window" id="puzzleViewerWindow" data-app="Puzzle 1" style="--x: 29vw; --y: 8vh; --w: 520px; --h: 650px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span id="puzzleViewerTitle">SF Subway.png</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <!-- <div class="puzzle-test-toolbar" hidden>
+        <label><input id="hotspotToggle" type="checkbox"> Show click areas</label>
+        <button class="toolbar-button" id="resetPuzzleProgress" type="button" hidden>Reset progress</button>
+      </div> -->
+      <div class="puzzle-viewer-content">
+        <div class="puzzle-map" id="puzzleMap">
+          <img id="puzzleViewerImage" src="./Assets/puzzle1.png" alt="Puzzle 1" draggable="false">
+          <button class="puzzle-hotspot hotspot-red" type="button" data-puzzle="red" aria-label="Red puzzle"></button>
+          <button class="puzzle-hotspot hotspot-yellow" type="button" data-puzzle="yellow" aria-label="Yellow puzzle"></button>
+          <button class="puzzle-hotspot hotspot-orange" type="button" data-puzzle="orange" aria-label="Orange puzzle"></button>
+          <button class="puzzle-hotspot hotspot-green" type="button" data-puzzle="green" aria-label="Green puzzle"></button>
+          <button class="puzzle-hotspot hotspot-white" type="button" data-puzzle="white" aria-label="Final white puzzle"></button>
+        </div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+
+    <section class="app-window trivia-window" id="triviaWindow" data-app="Puzzle Question" style="--x: 36vw; --y: 24vh; --w: 430px; --h: 350px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon trivia-icon">?</span>
+          <span id="triviaWindowTitle">Puzzle Question</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="trivia-content">
+        <p class="trivia-progress" id="triviaProgress">Completed: 0 / 4</p>
+        <h2 id="triviaQuestion">Question</h2>
+        <div class="trivia-answers" id="triviaAnswers"></div>
+        <p class="trivia-message" id="triviaMessage"></p>
+        <div class="trivia-lockout" id="triviaLockout" hidden>
+          Retry available in <strong id="triviaCountdown">10</strong> seconds.
+        </div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+
+    <section class="app-window clue-window" id="clueWindow" data-app="Clue #2" style="--x: 38vw; --y: 18vh; --w: 520px; --h: 560px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>Clue #2</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="clue-viewer-content">
+        <img src="./Assets/clue2.png" alt="Clue number 2">
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
     <section class="app-window about-window" id="aboutWindow" data-app="About" style="--x: 22vw; --y: 18vh; --w: 430px; --h: 310px;" hidden>
       <header class="titlebar" data-drag-handle>
         <div class="window-title"><span class="mini-app-icon info-icon"></span><span>About</span></div>
@@ -222,8 +327,8 @@
         <div class="about-mark">T</div>
         <div>
           <h1>Desktop</h1>
-          <p>A browser desktop interface with a Three.js model viewer.</p>
-          <p>Open local GLB, GLTF, OBJ, FBX, and audio files.</p>
+          <p>text here.</p>
+          <p>text here.</p>
         </div>
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
@@ -232,13 +337,14 @@
     <section class="start-menu" id="startMenu" hidden>
       <div class="start-profile">
         <div class="profile-avatar">T</div>
-        <div><strong>Touch</strong><span>Web workspace</span></div>
+        <div><strong>Archive</strong><span>Web workspace</span></div>
       </div>
       <div class="start-apps">
         <button data-open="viewerWindow"><span class="start-icon viewer-icon"></span><span><strong>Model Viewer</strong><small>View and import 3D files</small></span></button>
         <button data-open="computerWindow"><span class="start-icon image-icon computer-icon"></span><span><strong>Computer</strong><small>View PC specifications</small></span></button>
         <button data-open="musicWindow"><span class="start-icon image-icon disk-icon"></span><span><strong>Disk</strong><small>Play and shuffle music</small></span></button>
         <button data-open="notesWindow"><span class="start-icon notes-icon">N</span><span><strong>Notes</strong><small>Write and save notes</small></span></button>
+        <button data-open="puzzleFolderWindow"><span class="start-icon folder-icon"></span><span><strong>Folder</strong><small>Images</small></span></button>
         <button data-open="aboutWindow"><span class="start-icon info-icon"></span><span><strong>About</strong><small>Project information</small></span></button>
       </div>
       <div class="start-footer"><span>Desktop</span><button id="sleepButton">Sleep</button></div>
