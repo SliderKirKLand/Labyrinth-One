@@ -4,6 +4,7 @@ import { GLTFLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/GL
 import { OBJLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/OBJLoader.js";
 import { FBXLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/FBXLoader.js";
 import { DRACOLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/DRACOLoader.js";
+import { TransformControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/TransformControls.js";
 
 const canvas = document.getElementById("three-canvas");
 const stage = document.getElementById("viewerStage");
@@ -17,7 +18,11 @@ const dropOverlay = document.getElementById("dropOverlay");
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 2000);
-camera.position.set(4, 3, 6);
+const axesHelper = new THREE.AxesHelper(3);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+scene.add(ambientLight);
+
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setClearColor(0x000000, 0);
@@ -34,8 +39,23 @@ controls.dampingFactor = 0.07;
 controls.minDistance = 0.5;
 controls.maxDistance = 200;
 controls.target.set(0, 0.7, 0);
-controls.enableRotate = false;
+controls.enableRotate = true;
 controls.update();
+
+const transformControls = new TransformControls(
+  camera,
+  renderer.domElement
+);
+
+transformControls.setMode("rotate");
+transformControls.setSpace("local");
+transformControls.setSize(1.2);
+
+scene.add(transformControls);
+
+transformControls.addEventListener("dragging-changed", (event) => {
+  controls.enabled = !event.value;
+});
 
 scene.add(new THREE.HemisphereLight(0xf4efff, 0x17131e, 1.25));
 const key = new THREE.DirectionalLight(0xffffff, 2.5);
@@ -119,14 +139,22 @@ function frameObject(object) {
 
 function setModel(object, label) {
   if (currentModel) {
+    transformControls.detach();
     scene.remove(currentModel);
     disposeObject(currentModel);
   }
+
   currentModel = object;
-  scene.add(object);
-  frameObject(object);
-  wireBtn.classList.remove("active");
-  statusEl.innerHTML = label ? `Loaded <span class="name">${label}</span>` : "Showing demo mesh";
+  scene.add(currentModel);
+
+  frameObject(currentModel);
+
+  transformControls.attach(currentModel);
+  transformControls.setMode("rotate");
+
+  statusEl.innerHTML = label
+    ? `Loaded <span class="name">${label}</span>`
+    : "Showing demo mesh";
 }
 
 const dracoLoader = new DRACOLoader();
@@ -267,4 +295,4 @@ function animate() {
 }
 animate();
 
-loadUrl("banana.glb", "banana.glb");
+loadUrl("apple.glb", "apple.glb");

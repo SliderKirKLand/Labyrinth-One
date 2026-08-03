@@ -37,6 +37,11 @@
         <span>New Folder</span>
       </button>
 
+      <button class="desktop-icon" data-open="pictureWindow">
+        <span class="icon-tile picture-icon" aria-hidden="true"></span>
+        <span>Picture</span>
+      </button>
+
       <button class="desktop-icon" data-open="aboutWindow">
         <span class="icon-tile info-icon" aria-hidden="true"></span>
         <span>About</span>
@@ -150,16 +155,12 @@
       <div class="music-content">
         <aside class="album-panel">
           <span class="album-art disk-icon"></span>
-          <h2 id="trackTitle">No track selected</h2>
-          <p id="trackMeta">Add music files to begin</p>
-          <button class="toolbar-button primary" id="addMusicBtn">Add music</button>
           <input id="musicInput" type="file" accept="audio/*" multiple>
         </aside>
 
         <section class="player-panel">
           <div class="playlist-header">
             <strong>Playlist</strong>
-            <button class="toolbar-button" id="clearPlaylistBtn">Clear</button>
           </div>
           <ol class="playlist" id="playlist">
             <li class="playlist-empty">Your selected tracks appear here.</li>
@@ -233,9 +234,14 @@
 
       <div class="folder-toolbar">Things are hidden in plainsight</div>
       <div class="folder-content">
-        <button class="puzzle-file" type="button" data-puzzle-src="./Assets/puzzle1.png" data-puzzle-title="SF Subway.png">
-          <img src="./Assets/puzzle1.png" alt="Puzzle 1 thumbnail">
+        <button class="puzzle-file" type="button" data-puzzle-src="./Assets/New Folder/puzzle1.png" data-puzzle-title="SF Subway.png">
+          <img src="./Assets/New Folder/puzzle1.png" alt="Puzzle 1 thumbnail">
           <span>SF Subway.png</span>
+        </button>
+
+        <button class="puzzle-file" type="button" data-open="numberViewerWindow">
+          <img src="./Assets/New Folder/number.png" alt="Number puzzle thumbnail">
+          <span>number.png</span>
         </button>
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
@@ -254,10 +260,11 @@
         </div>
       </header>
 
-      <!-- <div class="puzzle-test-toolbar" hidden>
-        <label><input id="hotspotToggle" type="checkbox"> Show click areas</label>
+      <div class="puzzle-test-toolbar" hidden>
+        <!-- <label><input id="hotspotToggle" type="checkbox"> Show click areas</label> -->
         <button class="toolbar-button" id="resetPuzzleProgress" type="button" hidden>Reset progress</button>
-      </div> -->
+      </div>
+
       <div class="puzzle-viewer-content">
         <div class="puzzle-map" id="puzzleMap">
           <img id="puzzleViewerImage" src="./Assets/puzzle1.png" alt="Puzzle 1" draggable="false">
@@ -267,6 +274,25 @@
           <button class="puzzle-hotspot hotspot-green" type="button" data-puzzle="green" aria-label="Green puzzle"></button>
           <button class="puzzle-hotspot hotspot-white" type="button" data-puzzle="white" aria-label="Final white puzzle"></button>
         </div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window puzzle-viewer-window number-viewer-window" id="numberViewerWindow" data-app="number.png" style="--x: 53vw; --y: 17vh; --w: 520px; --h: 390px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>number.png</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="puzzle-viewer-content number-viewer-content">
+        <img src="./Assets/New Folder/number.png" alt="A1Z26 number cipher guide" draggable="false">
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
@@ -309,9 +335,87 @@
         </div>
       </header>
       <div class="clue-viewer-content">
-        <img src="./Assets/clue2.png" alt="Clue number 2">
+        <img src="./Assets/New Folder/clue2.png" alt="Clue number 2">
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window picture-window" id="pictureWindow" data-app="Picture" style="--x: 24vw; --y: 10vh; --w: 760px; --h: 590px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon picture-icon"></span>
+          <span>Picture</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="picture-toolbar">
+        <button class="toolbar-button picture-arrow" id="picturePrevious" type="button" aria-label="Previous picture">◀</button>
+        <span id="pictureCounter">1 / 6</span>
+        <button class="toolbar-button picture-arrow" id="pictureNext" type="button" aria-label="Next picture">▶</button>
+      </div>
+
+      <div class="picture-stage" id="pictureStage">
+        <section class="picture-slide active" data-picture-slide aria-label="Archived landscape picture">
+          <img class="guide-picture" src="./Assets/image/pizza.png" alt="Archived landscape picture">
+        </section>
+
+        <section class="picture-slide" data-picture-slide aria-label="Archived lake picture">
+          <img class="guide-picture" src="./Assets/image/daisy.png" alt="Archived lake picture">
+        </section>
+
+        <section class="picture-slide" data-picture-slide data-slide-name="3 / 6?" aria-label="3 / 6?">
+           <img class="guide-picture" src="./Assets/image/cipher.png" alt="13">
+        </section>
+
+        <section class="picture-slide interactive-fish-slide" data-picture-slide aria-label="Hidden fish puzzle">
+          <div class="fish-puzzle-canvas">
+            <img class="picture-background" src="./Assets/image/puzzle2.png" alt="Decorated coastal landscape">
+
+            <div class="cipher-secret secret-one" aria-label="First encrypted message section">ILUVW</div>
+            <div class="cipher-secret secret-two" aria-label="Second encrypted message section">OHWWHU</div>
+            <div class="cipher-secret secret-three" aria-label="Third encrypted message section">ZLOO EH D</div>
+
+            <img class="draggable-fish fish-one" src="./Assets/image/puzzle2_1.png" alt="Draggable goldfish one" draggable="false">
+            <img class="draggable-fish fish-two" src="./Assets/image/puzzle2_2.png" alt="Draggable goldfish two" draggable="false">
+            <img class="draggable-fish fish-three" src="./Assets/image/puzzle2_3.png" alt="Draggable goldfish three" draggable="false">
+            <img class="draggable-fish fish-four" src="./Assets/image/puzzle2_4.png" alt="Draggable goldfish four" draggable="false">
+          </div>
+        </section>
+
+        <section class="picture-slide" data-picture-slide aria-label="Caesar cipher guide">
+          <img class="guide-picture" src="./Assets/image/micro.png" alt="Caesar cipher alphabet guide">
+        </section>
+
+        <section class="picture-slide" data-picture-slide aria-label="Caesar cipher example">
+          <img class="guide-picture" src="./Assets/image/caesar.png" alt="Example decoding KHOOR as HELLO">
+        </section>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+
+    <section class="app-window note-error-window" id="noteErrorWindow" data-app="Error" style="--x: 39vw; --y: 34vh; --w: 330px; --h: 155px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon note-error-icon">!</span>
+          <span>Error</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="note-error-content">
+        <span class="note-error-symbol" aria-hidden="true">×</span>
+        <p>Action can not be done</p>
+      </div>
+      <div class="note-error-actions">
+        <button class="toolbar-button" id="dismissNoteError" type="button">OK</button>
+      </div>
     </section>
 
     <section class="app-window about-window" id="aboutWindow" data-app="About" style="--x: 22vw; --y: 18vh; --w: 430px; --h: 310px;" hidden>
@@ -323,36 +427,77 @@
           <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
         </div>
       </header>
-      <div class="about-content">
-        <div class="about-mark">T</div>
-        <div>
-          <h1>Desktop</h1>
-          <p>text here.</p>
-          <p>text here.</p>
+      <div class="about-content about-system-content">
+        <div class="about-mark">A</div>
+        <div class="about-system-copy">
+          <h1>Archive Desktop</h1>
+          <p>A local workstation for viewing files, playing media, keeping notes, and inspecting 3D objects.</p>
+          <p>Some system details require authorized access.</p>
+          <button class="toolbar-button" id="aboutMoreDetails" type="button">Click for more details</button>
         </div>
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
 
+    <section class="app-window about-keyword-window" id="aboutKeywordWindow" data-app="Restricted Access" style="--x: 35vw; --y: 28vh; --w: 390px; --h: 225px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon note-error-icon">?</span>
+          <span>Restricted Access</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <form class="about-keyword-content" id="aboutKeywordForm">
+        <label for="aboutKeywordInput">Enter keyword</label>
+        <input id="aboutKeywordInput" type="text" autocomplete="off" spellcheck="false">
+        <p id="aboutKeywordMessage" role="status"></p>
+        <div class="about-dialog-actions">
+          <button class="toolbar-button" type="submit">Unlock</button>
+          <button class="toolbar-button" id="cancelAboutKeyword" type="button">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="app-window about-download-window" id="aboutDownloadWindow" data-app="Asset Unlocked" style="--x: 38vw; --y: 30vh; --w: 390px; --h: 220px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon viewer-icon"></span>
+          <span>Asset Unlocked</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="about-download-content">
+        <strong>Model viewer asset available</strong>
+        <p>Maybe this book will have something of interest.</p>
+        <button class="toolbar-button" id="downloadModelPlaceholder" type="button">Download book.glb</button>
+      </div>
+    </section>
+
     <section class="start-menu" id="startMenu" hidden>
       <div class="start-profile">
-        <div class="profile-avatar">T</div>
+        <img src="./Assets/user.png" alt="User" style="width: 20%; height: 20%; object-fit: cover;">
         <div><strong>Archive</strong><span>Web workspace</span></div>
       </div>
+      
       <div class="start-apps">
         <button data-open="viewerWindow"><span class="start-icon viewer-icon"></span><span><strong>Model Viewer</strong><small>View and import 3D files</small></span></button>
         <button data-open="computerWindow"><span class="start-icon image-icon computer-icon"></span><span><strong>Computer</strong><small>View PC specifications</small></span></button>
         <button data-open="musicWindow"><span class="start-icon image-icon disk-icon"></span><span><strong>Disk</strong><small>Play and shuffle music</small></span></button>
         <button data-open="notesWindow"><span class="start-icon notes-icon">N</span><span><strong>Notes</strong><small>Write and save notes</small></span></button>
         <button data-open="puzzleFolderWindow"><span class="start-icon folder-icon"></span><span><strong>Folder</strong><small>Images</small></span></button>
+        <button data-open="pictureWindow"><span class="start-icon picture-icon"></span><span><strong>Picture</strong><small>Browse pictures and hidden clues</small></span></button>
         <button data-open="aboutWindow"><span class="start-icon info-icon"></span><span><strong>About</strong><small>Project information</small></span></button>
       </div>
       <div class="start-footer"><span>Desktop</span><button id="sleepButton">Sleep</button></div>
     </section>
 
-    <div class="sleep-screen" id="sleepScreen" hidden>
-      <div class="sleep-logo">T</div>
-      <p>Click anywhere to wake</p>
+    <div class="sleep-screen"id="sleepScreen" hidden>
+        <img src="./Assets/user.png" alt="User" style="width: 100%; height: 20%; object-fit: contain; position: relative; bottom: -150px;">
+      <p style="font-size: 24px;">Click anywhere to wake</p>
     </div>
 
     <footer class="taskbar">
