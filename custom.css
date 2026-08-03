@@ -34,8 +34,8 @@ body { color: var(--text); background: #191722; user-select: none; }
     url("./Assets/grim.png"),
     linear-gradient(
       to bottom,
-      rgba(26, 20, 17, 0.367) 40%,
-      rgba(95, 84, 162, 0.77) 100%
+      rgba(68, 67, 67, 0.367) 40%,
+      rgba(84, 162, 153, 0.77) 100%
     ),
     url("./Assets/daikoglobal2.png");
 
@@ -1539,4 +1539,535 @@ body::after {
   background: #008000;
   color: #fff;
   border-color: #ffffff #000000 #000000 #ffffff;
+}
+
+
+/* Picture slideshow app */
+.picture-icon {
+  background-image: url("./Assets/picture.png");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
+  box-shadow: none;
+}
+
+.picture-toolbar {
+  flex: 0 0 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 7px;
+  border-top: 1px solid var(--win98-light);
+  border-bottom: 2px solid var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+  font: 12px "MS Sans Serif", Tahoma, sans-serif;
+}
+
+.picture-arrow {
+  min-width: 42px;
+  font-weight: 700;
+}
+
+.picture-stage {
+  position: relative;
+  container-type: size;
+  flex: 1;
+  min-height: 0;
+  margin: 3px;
+  overflow: hidden;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #000;
+}
+
+.picture-slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow: hidden;
+  background: #000;
+}
+
+.picture-slide.active {
+  display: block;
+}
+
+.picture-background,
+.guide-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.picture-puzzle-frame {
+  position: relative;
+  width: 900px;
+  height: 560px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+.picture-puzzle-frame img.puzzle-background {
+  position: absolute;
+  inset: 0;
+  width: 900px;
+  height: 560px;
+  object-fit: contain;
+}
+
+.picture-puzzle-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#pictureWindow .resize-handle {
+  display: none;
+}
+
+.fish-piece {
+  position: absolute;
+  z-index: 3;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.hidden-cipher-text {
+  position: absolute;
+  z-index: 2;
+  width: 120px;
+  overflow: hidden;
+  color: #000;
+  background: #fff;
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.cipher-secret {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  padding: 15px 20px;
+  border: 3px solid #000;
+  background: #fff8b8;
+  color: #000;
+  font: 700 clamp(18px, 3vw, 34px) "Courier New", monospace;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.draggable-fish {
+  position: absolute;
+  z-index: 4;
+  width: 58%;
+  height: 58%;
+  object-fit: contain;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.draggable-fish.is-dragging {
+  z-index: 6;
+  cursor: grabbing;
+}
+
+.fish-one {
+  left: 4%;
+  top: 6%;
+}
+
+.fish-two {
+  right: 3%;
+  bottom: 4%;
+}
+
+.fish-instruction {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  z-index: 8;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 5px 9px;
+  border: 1px solid #000;
+  background: var(--win98-gray);
+  color: #000;
+  font: 11px "MS Sans Serif", Tahoma, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .cipher-secret {
+    max-width: 90%;
+    white-space: normal;
+  }
+
+  .draggable-fish {
+    width: 68%;
+    height: 58%;
+  }
+}
+
+/* Keep the fish, clues, and background on one 4:3 coordinate surface. */
+.interactive-fish-slide.active {
+  display: grid;
+  place-items: center;
+}
+
+.fish-puzzle-canvas {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  container-type: size;
+}
+
+.fish-puzzle-canvas .picture-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+/* Six-image Picture slideshow and three-part fish puzzle */
+.interactive-fish-slide .cipher-secret {
+  z-index: 2;
+  padding: clamp(1px, 0.55cqi, 4px) clamp(2px, 0.8cqi, 6px);
+  border: clamp(1px, 0.18cqi, 2px) solid #111;
+  background: #fff8b8;
+  color: #000;
+  font: 700 clamp(4px, 2.2cqi, 14px) "Courier New", monospace;
+  letter-spacing: .04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.interactive-fish-slide .secret-one {
+  left: 21%;
+  top: 31%;
+}
+
+.interactive-fish-slide .secret-two {
+  left: 50%;
+  top: 51%;
+}
+
+.interactive-fish-slide .secret-three {
+  left: 79%;
+  top: 70%;
+}
+
+.interactive-fish-slide .draggable-fish {
+  width: 38%;
+  height: 38%;
+}
+
+.interactive-fish-slide .fish-one {
+  left: 2%;
+  top: 12%;
+  right: auto;
+  bottom: auto;
+}
+
+.interactive-fish-slide .fish-two {
+  left: 31%;
+  top: 32%;
+  right: auto;
+  bottom: auto;
+}
+
+.interactive-fish-slide .fish-three {
+  left: 60%;
+  top: 51%;
+  right: auto;
+  bottom: auto;
+  transform: scaleX(-1);
+}
+
+.interactive-fish-slide .fish-four {
+  left: 55%;
+  top: 8%;
+  width: 30%;
+  height: auto;
+  transform: scaleX(-1);
+}
+
+.interactive-fish-slide .fish-three.is-dragging {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 700px) {
+  .interactive-fish-slide .cipher-secret {
+    font-size: clamp(4px, 2.2cqi, 9px);
+    padding: clamp(1px, 0.55cqi, 3px) clamp(2px, 0.8cqi, 4px);
+    white-space: nowrap;
+  }
+
+  .interactive-fish-slide .draggable-fish {
+    width: 42%;
+    height: 40%;
+  }
+}
+
+
+/* Locked Notepad clue and in-desktop error dialog */
+.note-title[readonly],
+.note-body[readonly] {
+  cursor: default;
+}
+
+.note-list-item.locked-note .note-list-title {
+  font-weight: 700;
+}
+
+.note-error-window {
+  min-width: 280px;
+  min-height: 145px;
+  z-index: 1500;
+}
+
+.note-error-icon {
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.note-error-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px 8px;
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.note-error-content p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.note-error-symbol {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #d40000;
+  color: #fff;
+  font: 700 27px/1 Arial, sans-serif;
+}
+
+.note-error-actions {
+  display: flex;
+  justify-content: center;
+  padding: 8px 10px 12px;
+  background: var(--win98-gray);
+}
+
+.note-error-actions .toolbar-button {
+  min-width: 76px;
+}
+
+.note-error-window .resize-handle {
+  display: none;
+}
+
+
+/* About app locked details flow */
+.about-system-content {
+  align-items: flex-start;
+  overflow: auto;
+}
+
+.about-system-copy {
+  min-width: 0;
+}
+
+.about-system-copy .toolbar-button {
+  margin-top: 8px;
+}
+
+.about-keyword-window,
+.about-download-window {
+  min-width: 320px;
+  min-height: 180px;
+}
+
+.about-keyword-content,
+.about-download-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.about-keyword-content label {
+  font-weight: 700;
+}
+
+#aboutKeywordInput {
+  width: 100%;
+  padding: 6px 7px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+}
+
+#aboutKeywordMessage {
+  min-height: 16px;
+  margin: 0;
+  color: #800000;
+  font-size: 12px;
+}
+
+.about-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.about-download-content strong {
+  font-size: 15px;
+}
+
+.about-download-content p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.about-download-content .toolbar-button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.about-keyword-window .resize-handle,
+.about-download-window .resize-handle {
+  display: none;
+}
+
+
+/* Static image files opened from New Folder */
+.puzzle-map.static-puzzle {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: auto;
+  display: grid;
+  place-items: center;
+}
+
+.puzzle-map.static-puzzle > img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.puzzle-map.static-puzzle .puzzle-hotspot {
+  display: none;
+}
+
+
+/* Typed SF Subway puzzle answers */
+.trivia-answer-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+}
+
+.trivia-answer-input {
+  min-width: 0;
+  width: 100%;
+  padding: 7px 8px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: 13px "MS Sans Serif", Tahoma, Arial, sans-serif;
+  user-select: text;
+}
+
+.trivia-answer-input:focus {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+.trivia-answer-input.correct-answer {
+  background: #008000;
+  color: #fff;
+  font-weight: bold;
+}
+
+.trivia-completed-answer {
+  padding: 9px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+  color: #006400;
+  font-weight: bold;
+}
+
+#triviaQuestion {
+  white-space: pre-line;
+}
+
+@media (max-width: 520px) {
+  .trivia-answer-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Separate number cipher window so it can remain open beside SF Subway. */
+.number-viewer-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  margin: 4px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #000;
+}
+
+.number-viewer-content img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }

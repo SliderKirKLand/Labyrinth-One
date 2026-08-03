@@ -1,4 +1,14 @@
 (() => {
+  /* Reset session data on every page refresh. */
+  try {
+    [
+      'touch-desktop-notes',
+      'touch-desktop-puzzle-progress',
+      'touch-desktop-wallpaper'
+    ].forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    console.warn('Session data was not cleared.', error);
+  }
   const desktop = document.getElementById('desktop');
   const taskItems = document.getElementById('taskItems');
   const startMenu = document.getElementById('startMenu');
@@ -12,9 +22,13 @@
     computerWindow: 'computer-icon',
     musicWindow: 'disk-icon',
     aboutWindow: 'info-icon',
+    aboutKeywordWindow: 'info-icon',
+    aboutDownloadWindow: 'model-icon',
     notesWindow: 'notes-icon',
     puzzleFolderWindow: 'folder-icon',
     puzzleViewerWindow: 'image-file-icon',
+    numberViewerWindow: 'image-file-icon',
+    pictureWindow: 'picture-icon',
     triviaWindow: 'trivia-icon'
   };
 
@@ -534,10 +548,21 @@
    */
 
   const notesStorageKey = 'touch-desktop-notes';
+  const lockedNoteId = 'system-model-clue';
+  const lockedNote = {
+    id: lockedNoteId,
+    title: 'Pinned Note',
+    body: 'Take what the numbers ask for.\n\nDREAM\nRADIO\nDUST\nWAVE\nHELLO',
+    updatedAt: 946684800000,
+    locked: true
+  };
+
   const notesList = document.getElementById('notesList');
   const noteTitle = document.getElementById('noteTitle');
   const noteBody = document.getElementById('noteBody');
   const noteSaveStatus = document.getElementById('noteSaveStatus');
+  const noteErrorWindow = document.getElementById('noteErrorWindow');
+  const dismissNoteError = document.getElementById('dismissNoteError');
   let notes = [];
   let activeNoteId = null;
   let noteSaveTimer = null;
@@ -547,6 +572,28 @@
     return { id: String(now), title: 'Untitled note', body: '', updatedAt: now };
   }
 
+  function enforceLockedNote() {
+    notes = notes.filter(note => note?.id !== lockedNoteId);
+    notes.push({ ...lockedNote });
+  }
+
+  function showNoteError() {
+    if (!noteErrorWindow) return;
+    noteErrorWindow.hidden = false;
+    noteErrorWindow.classList.remove('is-minimized');
+    focusWindow(noteErrorWindow);
+    dismissNoteError?.focus();
+  }
+
+  function closeNoteError() {
+    if (!noteErrorWindow) return;
+    noteErrorWindow.hidden = true;
+    noteErrorWindow.classList.remove('is-active');
+    focusWindow(document.getElementById('notesWindow'));
+  }
+
+  dismissNoteError?.addEventListener('click', closeNoteError);
+
   function loadNotes() {
     try {
       const stored = JSON.parse(localStorage.getItem(notesStorageKey) || '[]');
@@ -555,13 +602,15 @@
       notes = [];
     }
 
-    if (notes.length === 0) notes.push(makeNote());
-    activeNoteId = notes[0].id;
+    enforceLockedNote();
+    activeNoteId = lockedNoteId;
+    saveNotes();
     renderNotes();
     loadActiveNote();
   }
 
   function saveNotes() {
+    enforceLockedNote();
     localStorage.setItem(notesStorageKey, JSON.stringify(notes));
     if (noteSaveStatus) noteSaveStatus.textContent = 'Saved';
   }
@@ -577,16 +626,19 @@
         button.type = 'button';
         button.className = 'note-list-item';
         button.classList.toggle('active', note.id === activeNoteId);
+        button.classList.toggle('locked-note', note.id === lockedNoteId);
 
         const title = document.createElement('span');
         title.className = 'note-list-title';
-        title.textContent = note.title.trim() || 'Untitled note';
+        title.textContent = `${note.id === lockedNoteId ? ' ' : ''}${note.title.trim() || 'Untitled note'}`;
 
         const date = document.createElement('span');
         date.className = 'note-list-date';
-        date.textContent = new Date(note.updatedAt).toLocaleString([], {
-          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
-        });
+        date.textContent = note.id === lockedNoteId
+          ? 'System file'
+          : new Date(note.updatedAt).toLocaleString([], {
+              month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+            });
 
         button.append(title, date);
         button.addEventListener('click', () => {
@@ -601,13 +653,26 @@
   function loadActiveNote() {
     const note = notes.find(item => item.id === activeNoteId);
     if (!note) return;
-    if (noteTitle) noteTitle.value = note.title;
-    if (noteBody) noteBody.value = note.body;
+    const isLocked = note.id === lockedNoteId;
+    if (noteTitle) {
+      noteTitle.value = note.title;
+      noteTitle.readOnly = isLocked;
+    }
+    if (noteBody) {
+      noteBody.value = note.body;
+      noteBody.readOnly = isLocked;
+    }
+    if (noteSaveStatus) noteSaveStatus.textContent = isLocked ? 'Read only' : 'Saved';
   }
 
   function updateActiveNote() {
     const note = notes.find(item => item.id === activeNoteId);
     if (!note) return;
+    if (note.id === lockedNoteId) {
+      loadActiveNote();
+      showNoteError();
+      return;
+    }
     note.title = noteTitle?.value || 'Untitled note';
     note.body = noteBody?.value || '';
     note.updatedAt = Date.now();
@@ -633,16 +698,19 @@
 
   document.getElementById('deleteNoteBtn')?.addEventListener('click', () => {
     if (!activeNoteId) return;
+    if (activeNoteId === lockedNoteId) {
+      showNoteError();
+      return;
+    }
     notes = notes.filter(note => note.id !== activeNoteId);
-    if (notes.length === 0) notes.push(makeNote());
-    activeNoteId = notes[0].id;
+    enforceLockedNote();
+    activeNoteId = notes[0]?.id || lockedNoteId;
     saveNotes();
     renderNotes();
     loadActiveNote();
   });
 
   loadNotes();
-
 
   /*
    * Music player
@@ -858,7 +926,7 @@
     if (audio) audio.volume = Number(volumeBar.value);
   });
 
-  if (audio) audio.volume = Number(volumeBar?.value || 0.8);
+  if (audio) audio.volume = Number(volumeBar?.value || 0.3);
 
   function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return '0:00';
@@ -873,6 +941,98 @@
 
   renderPlaylist();
   loadTrack(0, false);
+
+  /*
+   * Picture slideshow and draggable fish puzzle
+   */
+
+  const pictureSlides = Array.from(document.querySelectorAll('[data-picture-slide]'));
+  const picturePrevious = document.getElementById('picturePrevious');
+  const pictureNext = document.getElementById('pictureNext');
+  const pictureCounter = document.getElementById('pictureCounter');
+  let currentPictureIndex = 0;
+
+function showPictureSlide(index) {
+  if (!pictureSlides.length) return;
+
+  currentPictureIndex =
+    (index + pictureSlides.length) % pictureSlides.length;
+
+  pictureSlides.forEach((slide, slideIndex) => {
+    slide.classList.toggle(
+      'active',
+      slideIndex === currentPictureIndex
+    );
+  });
+
+  if (pictureCounter) {
+    const activeSlide = pictureSlides[currentPictureIndex];
+    const customName = activeSlide.dataset.slideName;
+
+    pictureCounter.textContent = customName
+      ? customName
+      : `${currentPictureIndex + 1} / ${pictureSlides.length}`;
+  }
+}
+  picturePrevious?.addEventListener('click', () => {
+    showPictureSlide(currentPictureIndex - 1);
+  });
+
+  pictureNext?.addEventListener('click', () => {
+    showPictureSlide(currentPictureIndex + 1);
+  });
+
+  function enableFishDragging(fish) {
+    const slide = fish.closest('.fish-puzzle-canvas');
+    if (!slide) return;
+
+    let dragging = false;
+    let pointerOffsetX = 0;
+    let pointerOffsetY = 0;
+
+    fish.addEventListener('pointerdown', event => {
+      dragging = true;
+      fish.setPointerCapture(event.pointerId);
+
+      const fishBox = fish.getBoundingClientRect();
+      pointerOffsetX = event.clientX - fishBox.left;
+      pointerOffsetY = event.clientY - fishBox.top;
+      fish.classList.add('is-dragging');
+      event.preventDefault();
+    });
+
+    fish.addEventListener('pointermove', event => {
+      if (!dragging) return;
+
+      const slideBox = slide.getBoundingClientRect();
+      const fishBox = fish.getBoundingClientRect();
+      const maxLeft = Math.max(0, slideBox.width - fishBox.width);
+      const maxTop = Math.max(0, slideBox.height - fishBox.height);
+      const left = Math.min(maxLeft, Math.max(0, event.clientX - slideBox.left - pointerOffsetX));
+      const top = Math.min(maxTop, Math.max(0, event.clientY - slideBox.top - pointerOffsetY));
+
+      const leftPercent = slideBox.width ? (left / slideBox.width) * 100 : 0;
+      const topPercent = slideBox.height ? (top / slideBox.height) * 100 : 0;
+
+      fish.style.left = `${leftPercent}%`;
+      fish.style.top = `${topPercent}%`;
+      fish.style.right = 'auto';
+      fish.style.bottom = 'auto';
+    });
+
+    const stopDragging = event => {
+      if (!dragging) return;
+      dragging = false;
+      fish.classList.remove('is-dragging');
+      if (fish.hasPointerCapture(event.pointerId)) fish.releasePointerCapture(event.pointerId);
+    };
+
+    fish.addEventListener('pointerup', stopDragging);
+    fish.addEventListener('pointercancel', stopDragging);
+  }
+
+  document.querySelectorAll('.draggable-fish').forEach(enableFishDragging);
+  showPictureSlide(0);
 
   /*
    * Puzzle folder and image viewer
@@ -900,6 +1060,10 @@
         puzzleViewerWindow.dataset.app = title;
       }
 
+      if (puzzleMap) {
+        puzzleMap.classList.toggle('static-puzzle', fileButton.dataset.puzzleStatic === 'true');
+      }
+
       openWindow('puzzleViewerWindow');
     });
   });
@@ -925,67 +1089,69 @@
   const puzzleQuestions = {
     red: {
       title: 'Red Line',
-      question: 'Which planet is known as the Red Planet?',
-      answers: ['Venus', 'Mars', 'Jupiter', 'Mercury'],
-      correct: 1,
-      penalty: 10
+      question: 'Open Computer Specifications. What processor is installed in this workstation?',
+      answers: [
+        'intel pentium ii 333',
+        'pentium ii 333',
+        'intel pentium 2 333',
+        'pentium 2 333'
+      ],
+      displayAnswer: 'Intel Pentium II 333',
+      hints: [
+        'Check the Computer Specifications.', 
+      ]
     },
     yellow: {
       title: 'Yellow Line',
-      question: 'How many sides does a triangle have?',
-      answers: ['Two', 'Three', 'Four', 'Five'],
-      correct: 1,
-      penalty: 10
+      question: 'According to Computer Specifications, how much memory does this workstation have?',
+      answers: ['64 mb sdram', '64mb sdram', '64 mb', '64mb', '64'],
+      displayAnswer: '64 MB SDRAM',
+      hints: [
+        'Check Computer Specifications.',
+      ]
     },
     orange: {
       title: 'Orange Line',
-      question: 'What color is created by mixing red and yellow?',
-      answers: ['Green', 'Purple', 'Orange', 'Blue'],
-      correct: 2,
-      penalty: 10
+      question: 'Open Picture and go to the second image. What flower is shown?',
+      answers: ['daisy', 'a daisy', 'daisy flower', 'a daisy flower'],
+      displayAnswer: 'Daisy',
+      hints: [
+        'Check Picture.',
+      ]
     },
     green: {
-      title: 'Green Line',
-      question: 'Which gas do plants absorb from the atmosphere?',
-      answers: ['Oxygen', 'Hydrogen', 'Carbon dioxide', 'Helium'],
-      correct: 2,
-      penalty: 10
+      title: 'Green Line · Number Cipher',
+      question: '14, 1, 13, 5 - 15, 6 - 20, 8, 5 - 15, 19',
+      answers: ['labyrinth os', 'labyrinthos', 'labyrinth'],
+      displayAnswer: 'LABYRINTH OS',
+      hints: [
+        'Aphabetic letters means something else.',
+      ]
     },
     white: {
       title: 'Final Station',
-      question: 'A train travels 120 miles in 2 hours. At the same speed, how far will it travel in 3.5 hours?',
-      answers: ['180 miles', '200 miles', '210 miles', '240 miles'],
-      correct: 2,
-      penalty: 20,
+      question: 'I have a brain but no thoughts.\nI have memory but no past.\nI have a flower but no garden.\nI run but never walk.\n\nWhat am I?',
+      answers: ['computer', 'a computer', 'the computer', 'pc', 'a pc', 'the pc', 'workstation', 'a workstation', 'the workstation'],
+      displayAnswer: 'Computer',
+      hints: [
+        'Each line points back to something you used on this desktop.',
+        'It has a processor, memory, pictures, and an operating system.'
+      ],
       final: true
     }
   };
 
   const requiredPuzzleKeys = ['red', 'yellow', 'orange', 'green'];
-  const puzzleStorageKey = 'touch-desktop-puzzle-progress';
   const completedPuzzles = new Set();
-  localStorage.removeItem(puzzleStorageKey);
-  let lockoutTimer = null;
-  let lockoutUntil = 0;
-  let lockedPuzzleKey = null;
+  const puzzleAttempts = new Map();
 
-  try {
-    const saved = JSON.parse(localStorage.getItem(puzzleStorageKey) || '[]');
-    if (Array.isArray(saved)) {
-      saved.forEach(key => {
-        if (puzzleQuestions[key]) completedPuzzles.add(key);
-      });
-    }
-  } catch (error) {
-    console.warn('Puzzle progress was not loaded.', error);
-  }
-
-  function savePuzzleProgress() {
-    try {
-      localStorage.setItem(puzzleStorageKey, JSON.stringify([...completedPuzzles]));
-    } catch (error) {
-      console.warn('Puzzle progress was not saved.', error);
-    }
+  function normalizePuzzleAnswer(value) {
+    return String(value || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[\u2010-\u2015_-]+/g, ' ')
+      .replace(/[^a-z0-9 ]+/g, '')
+      .replace(/\s+/g, ' ');
   }
 
   function updatePuzzleProgress() {
@@ -1001,55 +1167,11 @@
     return requiredPuzzleKeys.every(key => completedPuzzles.has(key));
   }
 
-  function isPuzzleLocked() {
-    return Date.now() < lockoutUntil;
-  }
-
-  function stopLockoutTimer() {
-    if (lockoutTimer) window.clearInterval(lockoutTimer);
-    lockoutTimer = null;
-  }
-
-  function finishPuzzleLockout() {
-    stopLockoutTimer();
-    lockoutUntil = 0;
-    lockedPuzzleKey = null;
-    if (triviaLockout) triviaLockout.hidden = true;
-    setAnswersDisabled(false);
-    showPuzzleMessage('You may try again.');
-  }
-
-  function setAnswersDisabled(disabled) {
-    triviaAnswers?.querySelectorAll('.trivia-answer').forEach(button => {
-      button.disabled = disabled;
-    });
-  }
-
   function showPuzzleMessage(message, type = '') {
     if (!triviaMessage) return;
     triviaMessage.textContent = message;
     triviaMessage.className = 'trivia-message';
     if (type) triviaMessage.classList.add(type);
-  }
-
-  function updateLockoutDisplay() {
-    if (!isPuzzleLocked()) {
-      finishPuzzleLockout();
-      return;
-    }
-
-    const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
-    if (triviaLockout) triviaLockout.hidden = false;
-    if (triviaCountdown) triviaCountdown.textContent = String(remaining);
-    setAnswersDisabled(true);
-  }
-
-  function beginPuzzleLockout(key, seconds) {
-    stopLockoutTimer();
-    lockedPuzzleKey = key;
-    lockoutUntil = Date.now() + seconds * 1000;
-    updateLockoutDisplay();
-    lockoutTimer = window.setInterval(updateLockoutDisplay, 250);
   }
 
   function openTriviaWindow() {
@@ -1062,7 +1184,6 @@
 
   function markPuzzleComplete(key) {
     completedPuzzles.add(key);
-    savePuzzleProgress();
     updatePuzzleProgress();
   }
 
@@ -1075,67 +1196,76 @@
     triviaAnswers.replaceChildren();
     updatePuzzleProgress();
 
-    puzzle.answers.forEach((answer, index) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'trivia-answer';
-      button.textContent = answer;
-
-      if (completedView) {
-        button.disabled = true;
-        if (index === puzzle.correct) button.classList.add('correct-answer');
-      } else {
-        button.addEventListener('click', () => {
-          if (isPuzzleLocked()) {
-            updateLockoutDisplay();
-            return;
-          }
-
-          if (index === puzzle.correct) {
-            markPuzzleComplete(key);
-            setAnswersDisabled(true);
-            button.classList.add('correct-answer');
-            showPuzzleMessage(
-              puzzle.final ? 'Correct. Clue #2 has been unlocked.' : 'Correct. This station is complete.',
-              'correct'
-            );
-            if (puzzle.final) openClueWindow();
-            return;
-          }
-
-          showPuzzleMessage(`Incorrect. Locked for ${puzzle.penalty} seconds.`, 'wrong');
-          beginPuzzleLockout(key, puzzle.penalty);
-        });
-      }
-
-      triviaAnswers.append(button);
-    });
-
     if (completedView) {
+      const completedAnswer = document.createElement('div');
+      completedAnswer.className = 'trivia-completed-answer';
+      completedAnswer.textContent = puzzle.displayAnswer;
+      triviaAnswers.append(completedAnswer);
       showPuzzleMessage(
-        puzzle.final ? 'Completed. The correct answer is shown. Clue #2 is available.' : 'Completed. The correct answer is shown.',
+        puzzle.final ? 'Completed. Clue #2 is available.' : 'Completed. The accepted answer is shown.',
         'correct'
       );
-    } else if (isPuzzleLocked()) {
-      showPuzzleMessage('The puzzle is still locked. Wait for the timer to finish.', 'wrong');
-      updateLockoutDisplay();
-    } else {
-      if (triviaLockout) triviaLockout.hidden = true;
-      showPuzzleMessage('');
+      openTriviaWindow();
+      return;
     }
 
+    const form = document.createElement('form');
+    form.className = 'trivia-answer-form';
+
+    const input = document.createElement('input');
+    input.className = 'trivia-answer-input';
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.placeholder = 'Type your answer';
+    input.setAttribute('aria-label', `Answer for ${puzzle.title}`);
+
+    const submit = document.createElement('button');
+    submit.className = 'toolbar-button trivia-submit';
+    submit.type = 'submit';
+    submit.textContent = 'Submit';
+
+    form.append(input, submit);
+    triviaAnswers.append(form);
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const submitted = normalizePuzzleAnswer(input.value);
+      const accepted = puzzle.answers.some(answer => normalizePuzzleAnswer(answer) === submitted);
+
+      if (accepted) {
+        markPuzzleComplete(key);
+        input.disabled = true;
+        submit.disabled = true;
+        input.value = puzzle.displayAnswer;
+        input.classList.add('correct-answer');
+        showPuzzleMessage(
+          puzzle.final ? 'Correct. Clue #2 has been unlocked.' : 'Correct. This station is complete.',
+          'correct'
+        );
+        if (puzzle.final) openClueWindow();
+        return;
+      }
+
+      const attempts = (puzzleAttempts.get(key) || 0) + 1;
+      puzzleAttempts.set(key, attempts);
+      const hintIndex = Math.min(attempts - 1, puzzle.hints.length - 1);
+      const hint = puzzle.hints[hintIndex];
+      showPuzzleMessage(`That does not match. Hint: ${hint}`, 'wrong');
+      input.select();
+    });
+
+    showPuzzleMessage('');
     openTriviaWindow();
+    window.setTimeout(() => input.focus(), 0);
   }
 
   function showWhitePuzzleLockedMessage() {
     if (triviaWindowTitle) triviaWindowTitle.textContent = 'Final Station Locked';
-    if (triviaQuestion) {
-      triviaQuestion.textContent = 'There are things to be seen around.';
-    }
+    if (triviaQuestion) triviaQuestion.textContent = 'There are things that need to be finished.';
     triviaAnswers?.replaceChildren();
     updatePuzzleProgress();
-    showPuzzleMessage('Nothing to see here.', 'wrong');
-    if (isPuzzleLocked()) updateLockoutDisplay();
+    showPuzzleMessage('Finish what you have started first.', 'wrong');
     openTriviaWindow();
   }
 
@@ -1146,22 +1276,14 @@
     const key = hotspot.dataset.puzzle;
     if (!key) return;
 
-    if (isPuzzleLocked()) {
-      renderPuzzleQuestion(lockedPuzzleKey || key, false);
-      return;
-    }
-
     if (key === 'white' && !allRegularPuzzlesComplete()) {
       showWhitePuzzleLockedMessage();
       return;
     }
 
     if (completedPuzzles.has(key)) {
-      if (key === 'white') {
-        openClueWindow();
-      } else {
-        renderPuzzleQuestion(key, true);
-      }
+      if (key === 'white') openClueWindow();
+      else renderPuzzleQuestion(key, true);
       return;
     }
 
@@ -1173,17 +1295,97 @@
   });
 
   resetPuzzleProgress?.addEventListener('click', () => {
-    stopLockoutTimer();
-    lockoutUntil = 0;
-    lockedPuzzleKey = null;
-    if (triviaLockout) triviaLockout.hidden = true;
     completedPuzzles.clear();
-    savePuzzleProgress();
+    puzzleAttempts.clear();
     updatePuzzleProgress();
     showPuzzleMessage('Puzzle progress reset.');
   });
 
+  if (triviaLockout) triviaLockout.hidden = true;
   updatePuzzleProgress();
+
+  /*
+   * About app keyword unlock
+   */
+
+  const aboutMoreDetails = document.getElementById('aboutMoreDetails');
+  const aboutKeywordWindow = document.getElementById('aboutKeywordWindow');
+  const aboutKeywordForm = document.getElementById('aboutKeywordForm');
+  const aboutKeywordInput = document.getElementById('aboutKeywordInput');
+  const aboutKeywordMessage = document.getElementById('aboutKeywordMessage');
+  const cancelAboutKeyword = document.getElementById('cancelAboutKeyword');
+  const downloadModelPlaceholder = document.getElementById('downloadModelPlaceholder');
+
+  function normalizeAboutKeyword(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ');
+  }
+
+  function isValidAboutKeyword(value) {
+    const normalized = normalizeAboutKeyword(value);
+    const accepted = new Set([
+      'model',
+      'the model',
+      '3d model',
+      '3 d model',
+      'model viewer',
+      '3dmodel'
+    ]);
+
+    return accepted.has(normalized) || normalized.replace(/\s/g, '') === 'model';
+  }
+
+  function openAboutKeywordWindow() {
+    if (!aboutKeywordWindow) return;
+    openWindow('aboutKeywordWindow');
+    if (aboutKeywordInput) aboutKeywordInput.value = '';
+    if (aboutKeywordMessage) aboutKeywordMessage.textContent = '';
+    requestAnimationFrame(() => aboutKeywordInput?.focus());
+  }
+
+  aboutMoreDetails?.addEventListener('click', openAboutKeywordWindow);
+
+  cancelAboutKeyword?.addEventListener('click', () => {
+    closeWindow(aboutKeywordWindow);
+    focusWindow(document.getElementById('aboutWindow'));
+  });
+
+  aboutKeywordForm?.addEventListener('submit', event => {
+    event.preventDefault();
+
+    if (!isValidAboutKeyword(aboutKeywordInput?.value)) {
+      if (aboutKeywordMessage) {
+        aboutKeywordMessage.textContent = 'Keyword not recognized.';
+      }
+      aboutKeywordInput?.select();
+      return;
+    }
+
+    closeWindow(aboutKeywordWindow);
+    openWindow('aboutDownloadWindow');
+  });
+
+  downloadModelPlaceholder?.addEventListener('click', () => {
+    const text = [
+      'ARCHIVE MODEL PLACEHOLDER',
+      '',
+      'This file will be replaced by the final 3D model.',
+      'Open the finished model with the desktop Model Viewer.'
+    ].join('\n');
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = "book.glb";
+    link.download = 'book.glb';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
 
   /*
    * Clean the initial taskbar state.
