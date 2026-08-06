@@ -1,6 +1,14 @@
+@font-face {
+  font-family: "MSW98UI";
+  src: url("./Assets/Fonts/MSW98UI-Regular.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif;
   --taskbar-height: 52px;
   --accent: #8d7cf6;
   --accent-strong: #a89bff;
@@ -11,7 +19,7 @@
 
 * { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-button, input { font: inherit; color: inherit; }
+button, input, textarea { font: inherit; color: inherit; }
 button:focus-visible, input:focus-visible { outline: 2px solid #c6bdff; outline-offset: 2px; }
 body { color: var(--text); background: #191722; user-select: none; }
 
@@ -40,7 +48,7 @@ body { color: var(--text); background: #191722; user-select: none; }
     url("./Assets/daikoglobal2.png");
 
   background-size:
-    500px auto,
+    clamp(180px, 35vw, 500px) auto,
     cover,
     100px auto;
 
@@ -117,6 +125,16 @@ body { color: var(--text); background: #191722; user-select: none; }
 }
 .folder-icon, .image-file-icon {
   background-image: url("./Assets/folder.png");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
+  box-shadow: none;
+}
+
+.mail-icon {
+  background-image: url("./Assets/mail.png");
   background-color: transparent;
   background-repeat: no-repeat;
   background-position: center;
@@ -269,7 +287,7 @@ body { color: var(--text); background: #191722; user-select: none; }
 }
 
 body {
-  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+  font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif;
   color: #000;
 }
 
@@ -1006,7 +1024,7 @@ body::after {
   border-radius: 0;
   background: #ffffdf;
   color: #000;
-  font: 14px/1.5 "Courier New", monospace;
+  font: 14px/1.5 "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif;
   outline: none;
 }
 
@@ -2070,4 +2088,951 @@ body::after {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* Keep app windows inside the CRT desktop on smaller displays */
+.app-window {
+  max-width: calc(100% - 24px);
+  max-height: calc(100% - var(--taskbar-height) - 24px);
+}
+
+/* Medium screens */
+@media (max-width: 1100px), (max-height: 750px) {
+  .app-window {
+    left: clamp(8px, var(--x), calc(100% - min(var(--w), 92vw) - 8px));
+    top: clamp(8px, var(--y), calc(100% - min(var(--h), 82vh) - var(--taskbar-height) - 8px));
+
+    width: min(var(--w), 92vw);
+    height: min(var(--h), calc(82vh - var(--taskbar-height)));
+
+    min-width: min(360px, calc(100vw - 36px));
+    min-height: min(260px, calc(100vh - var(--taskbar-height) - 36px));
+  }
+}
+
+/* Tablets and smaller laptops */
+@media (max-width: 800px), (max-height: 600px) {
+  .app-window {
+    left: 8px !important;
+    top: 8px !important;
+
+    width: calc(100% - 16px) !important;
+    height: calc(100% - var(--taskbar-height) - 16px) !important;
+
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .puzzle-viewer-window,
+  .number-viewer-window {
+    width: min(48%, 520px) !important;
+    height: calc(100% - var(--taskbar-height) - 16px) !important;
+  }
+
+  .puzzle-viewer-window {
+    left: 8px !important;
+  }
+
+  .number-viewer-window {
+    left: auto !important;
+    right: 8px !important;
+  }
+}
+/* Responsive desktop shortcuts: keep every app icon on screen */
+.desktop-icons {
+  top: clamp(8px, 2.5vh, 22px);
+  left: clamp(6px, 1.8vw, 18px);
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-auto-flow: row;
+  align-content: start;
+  gap: clamp(2px, 1.1vh, 12px);
+  max-height: calc(100% - var(--taskbar-height) - 16px);
+}
+
+.desktop-icon {
+  width: clamp(66px, 10vh, 92px);
+  min-height: clamp(66px, 10vh, 92px);
+  gap: clamp(2px, 0.7vh, 7px);
+  padding: 2px;
+  font-size: clamp(11px, 1.65vh, 16px);
+  line-height: 1.05;
+}
+
+.desktop-icon > span:last-child {
+  max-width: 100%;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.desktop-icon .icon-tile {
+  width: clamp(34px, 5.4vh, 46px);
+  height: clamp(34px, 5.4vh, 46px);
+}
+
+/* Short screens: use two columns instead of pushing icons below the taskbar. */
+@media (max-height: 720px) {
+  .desktop-icons {
+    grid-template-columns: repeat(2, minmax(64px, 78px));
+    grid-auto-flow: row;
+    gap: 3px 6px;
+  }
+
+  .desktop-icon {
+    width: 78px;
+    min-height: 72px;
+    font-size: 11px;
+  }
+
+  .desktop-icon .icon-tile {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Narrow phones: keep shortcuts visible and compact. */
+@media (max-width: 700px) {
+  .desktop-icons {
+    display: grid;
+    top: 8px;
+    left: 6px;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: clamp(1px, 0.7vh, 7px);
+    max-height: calc(100% - var(--taskbar-height) - 10px);
+  }
+
+  .desktop-icon {
+    width: clamp(60px, 9.2vh, 78px);
+    min-height: clamp(60px, 9.2vh, 78px);
+    font-size: clamp(10px, 1.55vh, 13px);
+  }
+
+  .desktop-icon .icon-tile {
+    width: clamp(31px, 4.8vh, 40px);
+    height: clamp(31px, 4.8vh, 40px);
+  }
+}
+
+/* Very short phones use two compact columns. */
+@media (max-width: 700px) and (max-height: 620px) {
+  .desktop-icons {
+    grid-template-columns: repeat(2, 64px);
+    gap: 1px 4px;
+  }
+
+  .desktop-icon {
+    width: 64px;
+    min-height: 58px;
+    font-size: 10px;
+  }
+
+  .desktop-icon .icon-tile {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+
+/* Mail app and key-rack puzzle */
+.mail-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 3px;
+  padding: 3px;
+  background: var(--win98-gray);
+}
+
+.mail-sidebar,
+.mail-list,
+.mail-reader {
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+  color: #000;
+}
+
+.mail-sidebar {
+  padding: 8px 5px;
+}
+
+.mail-sidebar > strong {
+  display: block;
+  margin: 2px 6px 8px;
+}
+
+.mail-folder {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 8px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  text-align: left;
+}
+
+.mail-folder.active {
+  background: var(--win98-blue);
+  color: #fff;
+}
+
+.mail-main {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 3px;
+}
+
+.mail-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  height: auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mail-message {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 10px;
+  padding: 10px;
+  min-height: 48px;
+  border: 0;
+  border-bottom: 1px solid #c0c0c0;
+  background: #fff;
+  color: #000;
+  text-align: left;
+}
+
+.mail-message.active {
+  background: #e8e8ff;
+}
+
+.mail-reader {
+  min-height: 0;
+  overflow: auto;
+}
+
+.mail-reader-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid #808080;
+  background: #f2f2f2;
+}
+
+.mail-reader-header h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.mail-reader-header p {
+  margin: 3px 0;
+  font-size: 12px;
+}
+
+.mail-reader-body {
+  padding: 14px 18px 24px;
+  font: 14px/1.5 "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif;
+}
+
+.mail-attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.mail-attachment-link:hover {
+  border-color: #808080;
+  background: #e8e8e8;
+}
+
+.mail-attachment-link .image-file-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.key-puzzle-toolbar {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 7px;
+  border-top: 1px solid var(--win98-light);
+  border-bottom: 2px solid var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.key-puzzle-toolbar > span {
+  margin-right: auto;
+  font-size: 12px;
+}
+
+.key-puzzle-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+  background: #dedede;
+  color: #000;
+}
+
+
+.key-rack-stage {
+  position: relative;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  aspect-ratio: 1351 / 920;
+  border: 2px solid;
+  border-color:
+    var(--win98-dark)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-dark);
+  overflow: hidden;
+  background: #c6b18e;
+}
+
+
+.key-rack-background {
+  position: absolute;
+  left: 50%;
+  top: 2%;
+  width: 75%;
+  height: auto;
+  object-fit: contain;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.key-rack-slots {
+  position: absolute;
+  inset: 0;
+}
+
+/* Small target areas centered on the actual hook pegs */
+.key-slot {
+  position: absolute;
+  top: 48%;
+  width: 8%;
+  height: 12%;
+  transform: translateX(-50%);
+  border: 2px dashed rgba(0, 0, 0, 0.65);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.key-slot:nth-child(1) { left: 19.5%; }
+.key-slot:nth-child(2) { left: 32.5%; }
+.key-slot:nth-child(3) { left: 45.5%; }
+.key-slot:nth-child(4) { left: 57.5%; }
+.key-slot:nth-child(5) { left: 72.5%; }
+.key-slot:nth-child(6) { left: 82.5%; }
+
+.key-slot.selected-target {
+  border-color: rgba(0, 0, 128, 0.8);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.key-slot.drag-over {
+  background: rgba(255, 255, 255, 0.42);
+  outline: 2px solid #000080;
+}
+
+.key-slot.filled {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* Loose keys remain close to their original size */
+.key-piece {
+  position: relative;
+  width: clamp(72px, 10vw, 105px);
+  height: clamp(165px, 23vw, 235px);
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: grab;
+}
+
+.key-piece:active {
+  cursor: grabbing;
+}
+
+.key-piece.selected {
+  border: 2px dotted #000080;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.key-piece img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(3px 4px 2px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+/* A key placed on a hook hangs below the small target box */
+.key-slot .key-piece {
+  position: absolute;
+  left: 50%;
+  top: -58%;
+  width: clamp(72px, 10vw, 105px);
+  height: clamp(165px, 23vw, 235px);
+  transform: translateX(-50%);
+  border: 0;
+  z-index: 4;
+}
+
+/* More vertical room for the original-size keys */
+.key-pool {
+  width: min(100%, 760px);
+  min-height: 245px;
+  margin: 8px auto 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 7px;
+  border: 2px solid;
+  border-color:
+    var(--win98-dark)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-dark);
+  background: #fff;
+}
+
+.key-puzzle-message {
+  width: min(100%, 760px);
+  min-height: 28px;
+  margin: 8px auto 8px;
+  padding: 6px 8px;
+  border: 2px solid;
+  border-color:
+    var(--win98-dark)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-dark);
+  background: #fff8c6;
+  color: #000;
+  font-weight: bold;
+}
+
+.key-rack-stage.solved {
+  outline: 3px solid #008000;
+  outline-offset: -5px;
+}
+
+/* Smaller displays */
+@media (max-width: 700px) {
+  .key-rack-stage {
+    aspect-ratio: 4 / 5;
+  }
+
+  .key-rack-background {
+    width: 94%;
+    max-height: 52%;
+  }
+
+  .key-slot {
+    top: 40%;
+    width: 10%;
+    height: 9%;
+  }
+
+  .key-slot:nth-child(1) { left: 10%; }
+  .key-slot:nth-child(2) { left: 26%; }
+  .key-slot:nth-child(3) { left: 42%; }
+  .key-slot:nth-child(4) { left: 58%; }
+  .key-slot:nth-child(5) { left: 74%; }
+  .key-slot:nth-child(6) { left: 90%; }
+
+  .key-piece,
+  .key-slot .key-piece {
+    width: clamp(58px, 17vw, 82px);
+    height: clamp(135px, 36vw, 185px);
+  }
+
+  .key-slot .key-piece {
+    top: -70%;
+  }
+
+  .key-pool {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mail-layout {
+    grid-template-columns: 105px 1fr;
+  }
+
+  .mail-main {
+    grid-template-rows: auto 1fr;
+  }
+
+  .mail-message {
+    grid-template-columns: 70px 1fr;
+    font-size: 11px;
+  }
+
+  .mail-message small {
+    display: none;
+  }
+
+  .key-puzzle-window {
+    overflow: auto;
+  }
+
+  .key-puzzle-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .key-piece {
+    width: 58px;
+    height: 132px;
+  }
+
+  .key-pool {
+    min-height: 150px;
+  }
+}
+
+
+/* Mail completion email and paper clue */
+.mail-message.unread {
+  font-weight: bold;
+  background: #ffffd8;
+}
+
+.mail-message.unread small {
+  color: #000080;
+  font-weight: bold;
+}
+
+.mail-reader[hidden] {
+  display: none;
+}
+
+.paper-viewer-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 10px;
+  background: #808080;
+}
+
+.paper-viewer-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+
+/* Keep the thank-you email hidden until the key puzzle is completed. */
+.mail-message[hidden] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+
+/* Disk Morse-code unlock puzzle */
+.music-window .album-panel {
+  overflow-y: auto;
+}
+
+.music-window #trackTitle {
+  margin: 0 0 4px;
+  color: #000;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.music-window #trackMeta {
+  min-height: 30px;
+  margin: 0 0 12px;
+  color: #333;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.music-code-panel {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+  text-align: left;
+}
+
+.music-code-panel > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.music-code-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px;
+}
+
+#musicCodeInput {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 6px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: 700 16px "Courier New", monospace;
+  letter-spacing: .18em;
+  text-align: center;
+  user-select: text;
+}
+
+#musicCodeMessage {
+  min-height: 28px;
+  margin: 7px 0 0;
+  color: #222;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+#musicCodeInput:disabled,
+#addMusicBtn:disabled {
+  color: #666;
+}
+
+
+/* Computer identity recovery */
+.identity-recovery-panel {
+  margin-top: 18px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.identity-recovery-panel h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.identity-recovery-panel p {
+  margin: 0;
+  color: #333;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.identity-recovery-panel .toolbar-button {
+  flex: 0 0 auto;
+}
+
+.identity-recovery-window,
+.identity-result-window {
+  min-width: 320px;
+  min-height: 210px;
+  z-index: 1550;
+}
+
+.identity-recovery-form,
+.identity-result-content {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  background: var(--win98-gray);
+  color: #000;
+}
+
+.identity-recovery-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.identity-recovery-form > p:first-child {
+  margin: 0 0 3px;
+}
+
+.identity-recovery-form label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#identityRecoveryInput {
+  width: 100%;
+  padding: 7px 8px;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font: 700 18px "Courier New", monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  user-select: text;
+}
+
+.identity-recovery-message {
+  min-height: 16px;
+  margin: 0;
+  color: #800000;
+  font-size: 11px;
+}
+
+.identity-recovery-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: auto;
+}
+
+.identity-result-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.identity-result-content h2 {
+  margin: 0;
+  color: #000080;
+  font: 700 17px "MS Sans Serif", Tahoma, sans-serif;
+}
+
+.identity-result-content dl {
+  margin: 0;
+  border: 2px solid;
+  border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
+  background: #fff;
+}
+
+.identity-result-content dl div {
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  padding: 7px 9px;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.identity-result-content dl div:last-child {
+  border-bottom: 0;
+}
+
+.identity-result-content dt {
+  font-weight: 700;
+}
+
+.identity-result-content dd {
+  margin: 0;
+  font-family: "Courier New", monospace;
+}
+
+.identity-result-content > p {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.identity-result-content .toolbar-button {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+.identity-recovery-window .resize-handle,
+.identity-result-window .resize-handle {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .identity-recovery-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .identity-result-content dl div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+
+/* Postcard reveal after identity recovery */
+.postcard-viewer-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  margin: 3px;
+  border: 2px solid;
+  border-color:
+    var(--win98-dark)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-dark);
+  background: #000;
+}
+
+.postcard-viewer-content img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+
+/* Unknown sender Morse-code attachment viewer */
+.code-viewer-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  margin: 3px;
+  border: 2px solid;
+  border-color:
+    var(--win98-dark)
+    var(--win98-light)
+    var(--win98-light)
+    var(--win98-dark);
+  background: #000;
+}
+
+.code-viewer-content img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Login screen and connection mode */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  display: grid;
+  place-items: center;
+  background: #008080;
+  color: #000;
+}
+
+.login-screen[hidden] { display: none; }
+
+.login-dialog {
+  width: min(520px, calc(100vw - 28px));
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: var(--win98-gray, #c0c0c0);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.login-titlebar {
+  margin: 2px;
+  padding: 5px 7px;
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: #fff;
+  font-weight: bold;
+}
+
+.login-content {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 16px;
+  padding: 22px;
+}
+
+.login-computer-icon {
+  width: 64px;
+  height: 64px;
+  display: block;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.login-copy h1 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.login-copy > p {
+  margin: 0 0 16px;
+}
+
+.login-option {
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  background: #c0c0c0;
+  color: #000;
+  cursor: pointer;
+}
+
+.login-option:active {
+  border-color: #000 #fff #fff #000;
+  padding: 11px 11px 9px 13px;
+}
+
+.login-option span {
+  font-size: 12px;
+}
+
+.model-delivery-message {
+  min-height: 30px;
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .login-content { grid-template-columns: 1fr; }
+  .login-computer-icon { margin: 0 auto; }
 }

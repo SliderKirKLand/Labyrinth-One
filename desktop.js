@@ -15,12 +15,65 @@
   const startButton = document.getElementById('startButton');
   const sleepScreen = document.getElementById('sleepScreen');
 
+  /* Windows 98 interface sound effects */
+  const soundEffects = {
+    click: new Audio('./Assets/SFX/windows-98-click.wav'),
+    notify: new Audio('./Assets/SFX/windows-98-notify.wav'),
+    startup: new Audio('./Assets/SFX/windows-98-start-up.wav')
+  };
+
+  Object.values(soundEffects).forEach(audio => {
+    audio.preload = 'auto';
+  });
+
+  soundEffects.click.volume = 0.35;
+  soundEffects.notify.volume = 0.65;
+  soundEffects.startup.volume = 0.75;
+
+  function playSoundEffect(name, restart = true) {
+    const audio = soundEffects[name];
+    if (!audio) return;
+
+    try {
+      if (restart) audio.currentTime = 0;
+      const playback = audio.play();
+      playback?.catch(() => {});
+    } catch (error) {
+      console.warn(`Could not play ${name} sound.`, error);
+    }
+  }
+
+  document.addEventListener('click', event => {
+    const control = event.target.closest('button, [role="button"], input[type="button"], input[type="submit"]');
+    if (!control || control.disabled || control.closest('#loginScreen')) return;
+    playSoundEffect('click');
+  }, true);
+
+  /* Login screen and connection mode */
+  const loginScreen = document.getElementById('loginScreen');
+  const loginOnline = document.getElementById('loginOnline');
+  const loginOffline = document.getElementById('loginOffline');
+  let sessionMode = null;
+
+  function finishLogin(mode) {
+    sessionMode = mode;
+    document.body.dataset.sessionMode = mode;
+    if (loginScreen) loginScreen.hidden = true;
+    playSoundEffect('startup');
+  }
+
+  loginOnline?.addEventListener('click', () => finishLogin('online'));
+  loginOffline?.addEventListener('click', () => finishLogin('offline'));
+
   let topZ = 20;
 
   const appIconClass = {
     viewerWindow: 'model-icon',
     computerWindow: 'computer-icon',
     musicWindow: 'disk-icon',
+    mailWindow: 'mail-icon',
+    keyPuzzleWindow: 'image-file-icon',
+    paperViewerWindow: 'image-file-icon',
     aboutWindow: 'info-icon',
     aboutKeywordWindow: 'info-icon',
     aboutDownloadWindow: 'model-icon',
@@ -322,6 +375,12 @@
 
   startMenu?.addEventListener('click', event => {
     event.stopPropagation();
+
+    const appButton = event.target.closest('[data-open]');
+
+    if (appButton && startMenu.contains(appButton)) {
+      openWindow(appButton.dataset.open);
+    }
   });
 
   document.addEventListener('click', () => {
@@ -552,7 +611,7 @@
   const lockedNote = {
     id: lockedNoteId,
     title: 'Pinned Note',
-    body: 'Take what the numbers ask for.\n\nDREAM\nRADIO\nDUST\nWAVE\nHELLO',
+    body: 'Take what the numbers ask for. \nFive numbers.\nEach number knows where to look.\nRead what they leave behind.\n\n-----------------------------------------------------\n\nDREAM\nRADIO\nDUST\nWAVE\nHELLO',
     updatedAt: 946684800000,
     locked: true
   };
@@ -726,8 +785,18 @@
   const trackMeta = document.getElementById('trackMeta');
   const currentTimeText = document.getElementById('currentTime');
   const durationText = document.getElementById('duration');
+  const musicCodeInput = document.getElementById('musicCodeInput');
+  const addMusicBtn = document.getElementById('addMusicBtn');
+  const musicCodeMessage = document.getElementById('musicCodeMessage');
+  let recoveredTrackUnlocked = false;
 
   const tracks = [
+    {
+      title: 'signal',
+      artist: 'Unknown recording',
+      url: './Assets/Music/morse.mp3',
+      puzzleTrack: true
+    },
     {
       title: 'Hello cro',
       artist: 'Varra',
@@ -767,6 +836,48 @@
 
   let currentIndex = 0;
   let shuffle = false;
+
+  function unlockRecoveredTrack() {
+    if (recoveredTrackUnlocked) {
+      if (musicCodeMessage) musicCodeMessage.textContent = 'The recovered recording is already in the playlist.';
+      return;
+    }
+
+    const enteredCode = (musicCodeInput?.value || '').replace(/\D/g, '');
+    if (enteredCode !== '1788') {
+      if (musicCodeMessage) musicCodeMessage.textContent = 'No matching recording found.';
+      musicCodeInput?.select();
+      return;
+    }
+
+    recoveredTrackUnlocked = true;
+    tracks.push({
+      title: 'Phone Call',
+      artist: 'Recovered file',
+      url: './Assets/Music/message.mp3',
+      recoveredClue: true
+    });
+
+    if (musicCodeMessage) musicCodeMessage.textContent = '1 hidden recording found.';
+    if (musicCodeInput) {
+      musicCodeInput.value = '1788';
+      musicCodeInput.disabled = true;
+    }
+    if (addMusicBtn) addMusicBtn.disabled = true;
+    renderPlaylist();
+    loadTrack(tracks.length - 1, true);
+  }
+
+  addMusicBtn?.addEventListener('click', unlockRecoveredTrack);
+  musicCodeInput?.addEventListener('input', () => {
+    musicCodeInput.value = musicCodeInput.value.replace(/\D/g, '').slice(0, 4);
+    if (musicCodeMessage && !recoveredTrackUnlocked) {
+      musicCodeMessage.textContent = 'Enter the four-number recording code.';
+    }
+  });
+  musicCodeInput?.addEventListener('keydown', event => {
+    if (event.key === 'Enter') unlockRecoveredTrack();
+  });
 
   function renderPlaylist() {
     if (!playlist) return;
@@ -809,7 +920,11 @@
     audio.load();
 
     if (trackTitle) trackTitle.textContent = track.title;
-    if (trackMeta) trackMeta.textContent = track.artist;
+    if (trackMeta) {
+      trackMeta.textContent = track.recoveredClue
+        ? 'Recovered message: THE FOURTH LETTER IS A'
+        : track.artist;
+    }
 
     if (seekBar) seekBar.value = '0';
     if (currentTimeText) currentTimeText.textContent = '0:00';
@@ -926,7 +1041,7 @@
     if (audio) audio.volume = Number(volumeBar.value);
   });
 
-  if (audio) audio.volume = Number(volumeBar?.value || 0.3);
+  if (audio) audio.volume = Number(volumeBar?.value || 0.2);
 
   function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return '0:00';
@@ -1091,12 +1206,12 @@ function showPictureSlide(index) {
       title: 'Red Line',
       question: 'Open Computer Specifications. What processor is installed in this workstation?',
       answers: [
-        'intel pentium ii 333',
-        'pentium ii 333',
-        'intel pentium 2 333',
-        'pentium 2 333'
+        'intel pentium 333',
+        'pentium 333',
+        'intel pentium 333',
+        'pentium 333'
       ],
-      displayAnswer: 'Intel Pentium II 333',
+      displayAnswer: 'Intel Pentium 333',
       hints: [
         'Check the Computer Specifications.', 
       ]
@@ -1121,11 +1236,13 @@ function showPictureSlide(index) {
     },
     green: {
       title: 'Green Line · Number Cipher',
-      question: '14, 1, 13, 5 - 15, 6 - 20, 8, 5 - 15, 19',
-      answers: ['labyrinth os', 'labyrinthos', 'labyrinth'],
+      question: `14, 1, 13, 5
+15, 6
+20, 8, 5  15, 19`,
+      answers: ['labyrinth os', 'labyrinthos', 'labyrinth', 'labyrinth os 1.0', 'labyrinthos1.0'],
       displayAnswer: 'LABYRINTH OS',
       hints: [
-        'Aphabetic letters means something else.',
+        'Alphabetic letters means something else.',
       ]
     },
     white: {
@@ -1305,6 +1422,57 @@ function showPictureSlide(index) {
   updatePuzzleProgress();
 
   /*
+   * Computer identity recovery
+   */
+
+  const openIdentityRecovery = document.getElementById('openIdentityRecovery');
+  const identityRecoveryWindow = document.getElementById('identityRecoveryWindow');
+  const identityRecoveryForm = document.getElementById('identityRecoveryForm');
+  const identityRecoveryInput = document.getElementById('identityRecoveryInput');
+  const identityRecoveryMessage = document.getElementById('identityRecoveryMessage');
+  const cancelIdentityRecovery = document.getElementById('cancelIdentityRecovery');
+  const closeIdentityResult = document.getElementById('closeIdentityResult');
+
+  function openIdentityRecoveryDialog() {
+    openWindow('identityRecoveryWindow');
+    if (identityRecoveryInput) identityRecoveryInput.value = '';
+    if (identityRecoveryMessage) identityRecoveryMessage.textContent = '';
+    requestAnimationFrame(() => identityRecoveryInput?.focus());
+  }
+
+  openIdentityRecovery?.addEventListener('click', openIdentityRecoveryDialog);
+
+  cancelIdentityRecovery?.addEventListener('click', () => {
+    closeWindow(identityRecoveryWindow);
+    focusWindow(document.getElementById('computerWindow'));
+  });
+
+  identityRecoveryForm?.addEventListener('submit', event => {
+    event.preventDefault();
+
+    const answer = String(identityRecoveryInput?.value || '')
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z]/g, '');
+
+    if (answer !== 'ALIAS') {
+      if (identityRecoveryMessage) {
+        identityRecoveryMessage.textContent = 'Recovery name not recognized.';
+      }
+      identityRecoveryInput?.select();
+      return;
+    }
+
+    closeWindow(identityRecoveryWindow);
+    openWindow('identityResultWindow');
+  });
+
+  closeIdentityResult?.addEventListener('click', () => {
+    closeWindow(document.getElementById('identityResultWindow'));
+    openWindow('postcardViewerWindow');
+  });
+
+  /*
    * About app keyword unlock
    */
 
@@ -1315,6 +1483,11 @@ function showPictureSlide(index) {
   const aboutKeywordMessage = document.getElementById('aboutKeywordMessage');
   const cancelAboutKeyword = document.getElementById('cancelAboutKeyword');
   const downloadModelPlaceholder = document.getElementById('downloadModelPlaceholder');
+  const modelDeliveryMessage = document.getElementById('modelDeliveryMessage');
+  const checkNewModelBtn = document.getElementById('checkNewModelBtn');
+  const modelFileInput = document.getElementById('fileInput');
+  const modelViewerStatus = document.getElementById('status');
+  let offlineModelAvailable = false;
 
   function normalizeAboutKeyword(value) {
     return String(value || '')
@@ -1358,7 +1531,7 @@ function showPictureSlide(index) {
 
     if (!isValidAboutKeyword(aboutKeywordInput?.value)) {
       if (aboutKeywordMessage) {
-        aboutKeywordMessage.textContent = 'Keyword not recognized.';
+        aboutKeywordMessage.textContent = 'Keyword not recognized. It is a 5 letters word.';
       }
       aboutKeywordInput?.select();
       return;
@@ -1368,24 +1541,277 @@ function showPictureSlide(index) {
     openWindow('aboutDownloadWindow');
   });
 
-  downloadModelPlaceholder?.addEventListener('click', () => {
-    const text = [
-      'ARCHIVE MODEL PLACEHOLDER',
-      '',
-      'This file will be replaced by the final 3D model.',
-      'Open the finished model with the desktop Model Viewer.'
-    ].join('\n');
+  async function sendBookToModelViewer() {
+    if (!modelFileInput) return;
 
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    if (modelViewerStatus) {
+      modelViewerStatus.textContent = 'Loading book.glb...';
+    }
+
+    try {
+      const response = await fetch('./book.glb');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const blob = await response.blob();
+      const file = new File([blob], 'book.glb', {
+        type: blob.type || 'model/gltf-binary'
+      });
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      modelFileInput.files = transfer.files;
+      modelFileInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+      offlineModelAvailable = false;
+      if (checkNewModelBtn) checkNewModelBtn.hidden = true;
+    } catch (error) {
+      console.error('Could not load the offline model.', error);
+      if (modelViewerStatus) {
+        modelViewerStatus.textContent = 'Could not open book.glb. Check that the file is beside index.html.';
+      }
+    }
+  }
+
+  downloadModelPlaceholder?.addEventListener('click', () => {
+    if (sessionMode === 'offline') {
+      offlineModelAvailable = true;
+      if (checkNewModelBtn) checkNewModelBtn.hidden = false;
+      if (modelDeliveryMessage) {
+        modelDeliveryMessage.textContent =
+          'Offline delivery complete. Open Model Viewer and press Check new model.';
+      }
+      playSoundEffect('notify');
+      return;
+    }
+
     const link = document.createElement('a');
-    link.href = "book.glb";
+    link.href = './book.glb';
     link.download = 'book.glb';
     document.body.append(link);
     link.click();
     link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    if (modelDeliveryMessage) {
+      modelDeliveryMessage.textContent = 'Download started.';
+    }
   });
+
+  checkNewModelBtn?.addEventListener('click', () => {
+    if (!offlineModelAvailable) {
+      if (modelViewerStatus) modelViewerStatus.textContent = 'No new offline model is available.';
+      return;
+    }
+    sendBookToModelViewer();
+  });
+
+
+  /*
+   * Mail key-rack puzzle
+   */
+
+  const openKeyRack = document.getElementById('openKeyRack');
+  const keyPool = document.getElementById('keyPool');
+  const keySlots = Array.from(document.querySelectorAll('.key-slot'));
+  const checkKeyPuzzle = document.getElementById('checkKeyPuzzle');
+  const resetKeyPuzzle = document.getElementById('resetKeyPuzzle');
+  const keyPuzzleMessage = document.getElementById('keyPuzzleMessage');
+  const keyThanksEmail = document.getElementById('keyThanksEmail');
+  const mailInboxCount = document.getElementById('mailInboxCount');
+  const openPaperClue = document.getElementById('openPaperClue');
+  const openMorseCode = document.getElementById('openMorseCode');
+  const mailMessages = Array.from(document.querySelectorAll('[data-mail-reader]'));
+  const mailReaderPanels = Array.from(document.querySelectorAll('[data-mail-reader-panel]'));
+
+
+
+  function showMailReader(readerId) {
+    mailReaderPanels.forEach(panel => {
+      panel.hidden = panel.id !== readerId;
+    });
+    mailMessages.forEach(message => {
+      const active = message.dataset.mailReader === readerId;
+      message.classList.toggle('active', active);
+      if (active) message.classList.remove('unread');
+    });
+  }
+
+  mailMessages.forEach(message => {
+    message.addEventListener('click', () => {
+      showMailReader(message.dataset.mailReader);
+    });
+  });
+
+  openPaperClue?.addEventListener('click', () => {
+    openWindow('paperViewerWindow');
+  });
+
+  openMorseCode?.addEventListener('click', () => {
+    openWindow('codeViewerWindow');
+  });
+
+  const keyFiles = {
+    1: './Assets/mail/Key_1.png',
+    2: './Assets/mail/Key_2.png',
+    3: './Assets/mail/Key_3.png',
+    4: './Assets/mail/Key_4.png',
+    5: './Assets/mail/Key_5.png',
+    6: './Assets/mail/Key_6.png'
+  };
+
+  let keyOrder = [4, 1, 6, 2, 5, 3];
+  let keyPlacements = [null, null, null, null, null, null];
+  let selectedKey = null;
+  let keyAttempts = 0;
+  let keyPuzzleSolved = false;
+
+  // The follow-up email must not appear before the rack is solved.
+  if (keyThanksEmail) keyThanksEmail.hidden = true;
+  if (mailInboxCount) mailInboxCount.textContent = '2';
+
+  function createKeyButton(keyNumber) {
+    const button = document.createElement('button');
+    button.className = 'key-piece';
+    button.type = 'button';
+    button.draggable = !keyPuzzleSolved;
+    button.dataset.key = String(keyNumber);
+    button.setAttribute('aria-label', `Key with ${keyNumber} hole${keyNumber === 1 ? '' : 's'}`);
+    if (selectedKey === keyNumber) button.classList.add('selected');
+
+    const image = document.createElement('img');
+    image.src = keyFiles[keyNumber];
+    image.alt = '';
+    image.draggable = false;
+    button.append(image);
+
+    button.addEventListener('click', () => {
+      if (keyPuzzleSolved) return;
+      const slotIndex = keyPlacements.indexOf(keyNumber);
+      if (slotIndex !== -1) {
+        keyPlacements[slotIndex] = null;
+        selectedKey = keyNumber;
+      } else {
+        selectedKey = selectedKey === keyNumber ? null : keyNumber;
+      }
+      renderKeyPuzzle();
+    });
+
+    button.addEventListener('dragstart', event => {
+      if (keyPuzzleSolved) {
+        event.preventDefault();
+        return;
+      }
+      event.dataTransfer?.setData('text/plain', String(keyNumber));
+      if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+    });
+
+    return button;
+  }
+
+  function placeKey(keyNumber, slotIndex) {
+    if (keyPuzzleSolved || !keyFiles[keyNumber]) return;
+
+    const oldSlot = keyPlacements.indexOf(keyNumber);
+    if (oldSlot !== -1) keyPlacements[oldSlot] = null;
+
+    const displacedKey = keyPlacements[slotIndex];
+    keyPlacements[slotIndex] = keyNumber;
+    selectedKey = displacedKey || null;
+    keyPuzzleMessage.textContent = displacedKey
+      ? 'The displaced key is selected. Choose another hook for it.'
+      : 'Key placed. Arrange all six, then press Done.';
+    renderKeyPuzzle();
+  }
+
+  function renderKeyPuzzle() {
+    if (!keyPool || !keySlots.length) return;
+
+    keyPool.replaceChildren();
+    const placed = new Set(keyPlacements.filter(Boolean));
+    keyOrder.forEach(keyNumber => {
+      if (!placed.has(keyNumber)) keyPool.append(createKeyButton(keyNumber));
+    });
+
+    keySlots.forEach((slot, index) => {
+      slot.replaceChildren();
+      slot.classList.toggle('filled', Boolean(keyPlacements[index]));
+      slot.classList.toggle('selected-target', selectedKey !== null && !keyPuzzleSolved);
+      slot.disabled = keyPuzzleSolved;
+      const keyNumber = keyPlacements[index];
+      if (keyNumber) slot.append(createKeyButton(keyNumber));
+    });
+  }
+
+  keySlots.forEach((slot, index) => {
+    slot.addEventListener('click', event => {
+      if (event.target.closest('.key-piece')) return;
+      if (keyPuzzleSolved) return;
+      if (selectedKey !== null) {
+        placeKey(selectedKey, index);
+      } else if (keyPlacements[index]) {
+        selectedKey = keyPlacements[index];
+        keyPlacements[index] = null;
+        renderKeyPuzzle();
+      }
+    });
+
+    slot.addEventListener('dragover', event => {
+      if (keyPuzzleSolved) return;
+      event.preventDefault();
+      slot.classList.add('drag-over');
+    });
+
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+
+    slot.addEventListener('drop', event => {
+      if (keyPuzzleSolved) return;
+      event.preventDefault();
+      slot.classList.remove('drag-over');
+      const keyNumber = Number(event.dataTransfer?.getData('text/plain'));
+      placeKey(keyNumber, index);
+    });
+  });
+
+  openKeyRack?.addEventListener('click', () => {
+    openWindow('keyPuzzleWindow');
+    renderKeyPuzzle();
+  });
+
+  resetKeyPuzzle?.addEventListener('click', () => {
+    if (keyPuzzleSolved) return;
+    keyPlacements = [null, null, null, null, null, null];
+    selectedKey = null;
+    keyAttempts = 0;
+    keyPuzzleMessage.textContent = 'Place every key on a hook, then press Done.';
+    renderKeyPuzzle();
+  });
+
+  checkKeyPuzzle?.addEventListener('click', () => {
+    if (keyPuzzleSolved) return;
+
+    if (keyPlacements.some(value => value === null)) {
+      keyPuzzleMessage.textContent = 'Warning: Every hook needs a key before you press Done.';
+      return;
+    }
+
+    const correct = keyPlacements.every((keyNumber, index) => keyNumber === index + 1);
+    if (correct) {
+      keyPuzzleSolved = true;
+      selectedKey = null;
+      keyPuzzleMessage.textContent = 'Perfect. The keys are back in the correct order. You have a new email.';
+      if (keyThanksEmail) keyThanksEmail.hidden = false;
+      if (mailInboxCount) mailInboxCount.textContent = '3';
+      playSoundEffect('notify');
+      checkKeyPuzzle.disabled = true;
+      resetKeyPuzzle.disabled = true;
+      document.getElementById('keyRackStage')?.classList.add('solved');
+      renderKeyPuzzle();
+      return;
+    }
+
+    keyAttempts += 1;
+    keyPuzzleMessage.textContent = 'Warning: The keys are not in the correct order.';
+  });
+
+  renderKeyPuzzle();
 
   /*
    * Clean the initial taskbar state.

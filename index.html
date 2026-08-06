@@ -7,6 +7,26 @@
   <link rel="stylesheet" href="custom.css">
 </head>
 <body>
+  <section class="login-screen" id="loginScreen" aria-label="Connection mode selection">
+    <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="login-titlebar">LABYRINTH OS Log On</div>
+      <div class="login-content">
+        <span class="login-computer-icon computer-icon" aria-hidden="true"></span>
+        <div class="login-copy">
+          <h1 id="loginTitle">Choose a session mode</h1>
+          <p>This choice changes how unlocked 3D model files are opened.</p>
+          <button class="login-option" id="loginOnline" type="button">
+            <strong>Log in with Internet</strong>
+            <span>Unlocked models can be downloaded.</span>
+          </button>
+          <button class="login-option" id="loginOffline" type="button">
+            <strong>Log in Offline</strong>
+            <span>Unlocked models are sent directly to Model Viewer.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
   <main class="desktop" id="desktop" aria-label="Web desktop">
     <div class="wallpaper-shade"></div>
 
@@ -24,6 +44,11 @@
       <button class="desktop-icon" data-open="musicWindow">
         <span class="icon-tile image-icon disk-icon" aria-hidden="true"></span>
         <span>Disk</span>
+      </button>
+
+      <button class="desktop-icon" data-open="mailWindow">
+        <span class="icon-tile mail-icon" aria-hidden="true"></span>
+        <span>Mail</span>
       </button>
 
 
@@ -67,6 +92,7 @@
         <button id="rotateBtn" class="toolbar-button">Auto rotate</button>
         <button id="wireBtn" class="toolbar-button">Wireframe</button>
         <button id="resetBtn" class="toolbar-button">Reset view</button>
+        <button id="checkNewModelBtn" class="toolbar-button" type="button" hidden>Check new model</button>
         <span id="status" class="status">Showing default mesh</span>
       </div>
 
@@ -100,7 +126,7 @@
         </div>
         <dl class="spec-grid">
           <div><dt>Operating system</dt><dd>LABYRINTH OS 1.0</dd></div>
-          <div><dt>Processor</dt><dd>Intel Pentium II 333</dd></div>
+          <div><dt>Processor</dt><dd>Intel Pentium 333</dd></div>
           <div><dt>Memory</dt><dd>64 MB SDRAM</dd></div>
           <div><dt>Graphics</dt><dd>Intel 740 Gfx</dd></div>
           <div><dt>Storage</dt><dd>4 GB hard disk</dd></div>
@@ -108,6 +134,14 @@
           <div><dt>Device name</dt><dd>YOUR-DESKTOP</dd></div>
           <div><dt>System type</dt><dd>32-bit workstation</dd></div>
         </dl>
+
+        <section class="identity-recovery-panel" aria-labelledby="identityRecoveryHeading">
+          <div>
+            <h2 id="identityRecoveryHeading">Identity recovery</h2>
+            <p>Verify the five-letter recovery name assigned to this workstation.</p>
+          </div>
+          <button class="toolbar-button" id="openIdentityRecovery" type="button">Recover Identity</button>
+        </section>
 
         <section class="wallpaper-settings" aria-labelledby="wallpaperHeading">
           <div class="settings-heading">
@@ -139,6 +173,70 @@
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
 
+    <section class="app-window identity-recovery-window" id="identityRecoveryWindow" data-app="Identity Recovery" style="--x: 36vw; --y: 27vh; --w: 410px; --h: 245px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-icon computer-icon"></span>
+          <span>Identity Recovery</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <form class="identity-recovery-form" id="identityRecoveryForm">
+        <p>Enter the five-letter recovery name.</p>
+        <label for="identityRecoveryInput">Recovery name</label>
+        <input id="identityRecoveryInput" type="text" maxlength="5" autocomplete="off" spellcheck="false">
+        <p class="identity-recovery-message" id="identityRecoveryMessage" role="status"></p>
+        <div class="identity-recovery-actions">
+          <button class="toolbar-button" type="submit">Verify</button>
+          <button class="toolbar-button" id="cancelIdentityRecovery" type="button">Cancel</button>
+        </div>
+      </form>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window identity-result-window" id="identityResultWindow" data-app="Identity Confirmed" style="--x: 34vw; --y: 23vh; --w: 470px; --h: 315px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-icon computer-icon"></span>
+          <span>Identity Confirmed</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="identity-result-content">
+        <h2>IDENTITY CONFIRMED</h2>
+        <dl>
+          <div><dt>Recovery name</dt><dd>ALIAS</dd></div>
+          <div><dt>Assigned identity</dt><dd>ARCHIVE</dd></div>
+          <div><dt>Recovery status</dt><dd>COMPLETE</dd></div>
+        </dl>
+        <p>These files were not left for you. They were left by you.</p>
+        <button class="toolbar-button" id="closeIdentityResult" type="button">Continue</button>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window puzzle-viewer-window postcard-viewer-window" id="postcardViewerWindow" data-app="postcard.jpg" style="--x: 29vw; --y: 10vh; --w: 620px; --h: 500px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>postcard.jpg</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="postcard-viewer-content">
+        <img src="./Assets/New folder/postcard.jpg" alt="Recovered postcard" draggable="false">
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
     <section class="app-window music-window" id="musicWindow" data-app="Disk" style="--x: 25vw; --y: 12vh; --w: 620px; --h: 500px;" hidden>
       <header class="titlebar" data-drag-handle>
         <div class="window-title">
@@ -155,7 +253,17 @@
       <div class="music-content">
         <aside class="album-panel">
           <span class="album-art disk-icon"></span>
-          <input id="musicInput" type="file" accept="audio/*" multiple>
+          <h2 id="trackTitle">No track selected</h2>
+          <p id="trackMeta">Select a recording from the playlist.</p>
+
+          <div class="music-code-panel">
+            <label for="musicCodeInput">ADD MUSIC</label>
+            <div class="music-code-row">
+              <input id="musicCodeInput" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false" aria-label="Four-digit music code">
+              <button class="toolbar-button primary" id="addMusicBtn" type="button">Add</button>
+            </div>
+            <p id="musicCodeMessage" role="status">Enter the four-number recording code.</p>
+          </div>
         </aside>
 
         <section class="player-panel">
@@ -186,6 +294,125 @@
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
 
+
+    <section class="app-window mail-window" id="mailWindow" data-app="Mail" style="--x: 16vw; --y: 10vh; --w: 720px; --h: 520px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon mail-icon"></span>
+          <span>Inbox - Mail</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="mail-layout">
+        <aside class="mail-sidebar" aria-label="Mail folders">
+          <strong>Folders</strong>
+          <button class="mail-folder active" type="button">Inbox <span id="mailInboxCount">1</span></button>
+          <button class="mail-folder" type="button">Sent</button>
+          <button class="mail-folder" type="button">Drafts</button>
+          <button class="mail-folder" type="button">Trash</button>
+        </aside>
+
+        <section class="mail-main">
+          <div class="mail-list" aria-label="Messages">
+            <button class="mail-message active" id="keySortEmail" type="button" data-mail-reader="keySortMailReader">
+              <strong>Melody</strong>
+              <span>Keys need sorting</span>
+              <small>Today</small>
+            </button>
+            <button class="mail-message unread" id="keyThanksEmail" type="button" data-mail-reader="keyThanksMailReader" hidden>
+              <strong>Melody</strong>
+              <span>Thanks, and one more thing...</span>
+              <small>New</small>
+            </button>
+            <button class="mail-message unread" id="morseHintEmail" type="button" data-mail-reader="morseHintMailReader">
+              <strong>Unknown</strong>
+              <span>A recording was left behind</span>
+              <small>New</small>
+            </button>
+          </div>
+
+          <article class="mail-reader" id="keySortMailReader" data-mail-reader-panel>
+            <header class="mail-reader-header">
+              <h2>Keys need sorting</h2>
+              <p><strong>From:</strong> Melody</p>
+              <p><strong>To:</strong> Archive</p>
+            </header>
+            <div class="mail-reader-body">
+              <p>Hey,</p>
+              <p>The guests have all checked out, but they left the keys in a complete mess. Could you put them back on the rack in the proper order before the next group arrives?</p>
+              <p>Just a heads-up, none of the keys have their tags right now, so you’ll have to organize them by their shapes. I honestly can’t remember the order, but I’m sure you can figure it out.</p>
+              <p>Please do it before Mr. Ko notices, or he’s going to yell at both of us.</p>
+              <p>Thanks,<br>Melody</p>
+              <button class="mail-attachment-link" id="openKeyRack" type="button">
+                <span class="image-file-icon" aria-hidden="true"></span>
+                Click to view: key_rack.png
+              </button>
+            </div>
+          </article>
+
+          <article class="mail-reader" id="keyThanksMailReader" data-mail-reader-panel hidden>
+            <header class="mail-reader-header">
+              <h2>Thanks, and one more thing...</h2>
+              <p><strong>From:</strong> Melody</p>
+              <p><strong>To:</strong> Archive</p>
+            </header>
+            <div class="mail-reader-body">
+              <p>Hey,</p>
+              <p>Thanks for organizing the keys. You seriously saved us from getting yelled at by Mr. Ko.</p>
+              <p>I found a sheet of paper tucked behind the rack while I was checking everything. It looks like it might be important, so I scanned it and attached it here.</p>
+              <p>Thanks again,<br>Melody</p>
+              <button class="mail-attachment-link" id="openPaperClue" type="button">
+                <span class="image-file-icon" aria-hidden="true"></span>
+                Click to view: torn_paper.png
+              </button>
+            </div>
+          </article>
+
+          <article class="mail-reader" id="morseHintMailReader" data-mail-reader-panel hidden>
+            <header class="mail-reader-header">
+              <h2>A recording was left behind</h2>
+              <p><strong>From:</strong> Unknown</p>
+              <p><strong>To:</strong> Archive</p>
+            </header>
+            <div class="mail-reader-body">
+              <p>You do not know me.</p>
+              <p>There is a message hidden in the recording called <strong>signal.wav</strong>.</p>
+              <p>Listen for short and long tones. Short tones are dots. Long tones are dashes. The pauses separate letters and words.</p>
+              <p>A reference sheet is attached.</p>
+              <button class="mail-attachment-link" id="openMorseCode" type="button">
+                <span class="image-file-icon" aria-hidden="true"></span>
+                Click to view: code.png
+              </button>
+              <p><strong>Do not reply.</strong></p>
+            </div>
+          </article>
+        </section>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window puzzle-viewer-window code-viewer-window" id="codeViewerWindow" data-app="code.png" style="--x: 33vw; --y: 11vh; --w: 560px; --h: 620px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>code.png</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="code-viewer-content">
+        <img src="./Assets/Mail/code.png" alt="Morse code reference sheet" draggable="false">
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
 
     <section class="app-window notes-window" id="notesWindow" data-app="Notes" style="--x: 20vw; --y: 13vh; --w: 680px; --h: 500px;" hidden>
       <header class="titlebar" data-drag-handle>
@@ -293,6 +520,63 @@
 
       <div class="puzzle-viewer-content number-viewer-content">
         <img src="./Assets/New folder/number.png" alt="A1Z26 number cipher guide" draggable="false">
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+
+    <section class="app-window key-puzzle-window" id="keyPuzzleWindow" data-app="key_rack.png" style="--x: 21vw; --y: 6vh; --w: 820px; --h: 650px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>key_rack.png</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <div class="key-puzzle-toolbar">
+        <span>Place every key on the rack, then press Done.</span>
+        <button class="toolbar-button" id="resetKeyPuzzle" type="button">Reset</button>
+        <button class="toolbar-button" id="checkKeyPuzzle" type="button">Done</button>
+      </div>
+
+      <div class="key-puzzle-content">
+        <div class="key-rack-stage" id="keyRackStage">
+          <img class="key-rack-background" src="./Assets/mail/key_rack.png" alt="Six-hook wooden key rack">
+          <div class="key-rack-slots" id="keyRackSlots" aria-label="Key rack positions">
+            <button class="key-slot" type="button" data-slot="0" aria-label="First hook"></button>
+            <button class="key-slot" type="button" data-slot="1" aria-label="Second hook"></button>
+            <button class="key-slot" type="button" data-slot="2" aria-label="Third hook"></button>
+            <button class="key-slot" type="button" data-slot="3" aria-label="Fourth hook"></button>
+            <button class="key-slot" type="button" data-slot="4" aria-label="Fifth hook"></button>
+            <button class="key-slot" type="button" data-slot="5" aria-label="Sixth hook"></button>
+          </div>
+        </div>
+
+        <p class="key-puzzle-message" id="keyPuzzleMessage" role="status">Place every key on a hook, then press Done.</p>
+        <div class="key-pool" id="keyPool" aria-label="Unsorted keys"></div>
+      </div>
+      <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
+    </section>
+
+    <section class="app-window puzzle-viewer-window paper-viewer-window" id="paperViewerWindow" data-app="torn_paper.png" style="--x: 31vw; --y: 12vh; --w: 560px; --h: 620px;" hidden>
+      <header class="titlebar" data-drag-handle>
+        <div class="window-title">
+          <span class="mini-app-icon image-file-icon"></span>
+          <span>torn_paper.png</span>
+        </div>
+        <div class="window-controls">
+          <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
+          <button class="window-control maximize" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button class="window-control close" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="puzzle-viewer-content paper-viewer-content">
+        <img src="./Assets/mail/torn_paper.png" alt="Scanned sheet of paper containing the next clue" draggable="false">
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
@@ -474,6 +758,7 @@
         <strong>Model viewer asset available</strong>
         <p>Maybe this book will have something of interest.</p>
         <button class="toolbar-button" id="downloadModelPlaceholder" type="button">Download book.glb</button>
+        <p id="modelDeliveryMessage" class="model-delivery-message" role="status"></p>
       </div>
     </section>
 
@@ -487,6 +772,7 @@
         <button data-open="viewerWindow"><span class="start-icon viewer-icon"></span><span><strong>Model Viewer</strong><small>View and import 3D files</small></span></button>
         <button data-open="computerWindow"><span class="start-icon image-icon computer-icon"></span><span><strong>Computer</strong><small>View PC specifications</small></span></button>
         <button data-open="musicWindow"><span class="start-icon image-icon disk-icon"></span><span><strong>Disk</strong><small>Play and shuffle music</small></span></button>
+        <button data-open="mailWindow"><span class="start-icon mail-icon"></span><span><strong>Mail</strong><small>Read messages and attachments</small></span></button>
         <button data-open="notesWindow"><span class="start-icon notes-icon">N</span><span><strong>Notes</strong><small>Write and save notes</small></span></button>
         <button data-open="puzzleFolderWindow"><span class="start-icon folder-icon"></span><span><strong>Folder</strong><small>Images</small></span></button>
         <button data-open="pictureWindow"><span class="start-icon picture-icon"></span><span><strong>Picture</strong><small>Browse pictures and hidden clues</small></span></button>
