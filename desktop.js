@@ -1238,7 +1238,8 @@ function showPictureSlide(index) {
       title: 'Green Line · Number Cipher',
       question: `14, 1, 13, 5
 15, 6
-20, 8, 5  15, 19`,
+20, 8, 5  
+15, 19`,
       answers: ['labyrinth os', 'labyrinthos', 'labyrinth', 'labyrinth os 1.0', 'labyrinthos1.0'],
       displayAnswer: 'LABYRINTH OS',
       hints: [
