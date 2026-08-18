@@ -327,12 +327,12 @@
             <button class="mail-message unread" id="keyThanksEmail" type="button" data-mail-reader="keyThanksMailReader" hidden>
               <strong>Melody</strong>
               <span>Thanks, and one more thing...</span>
-              <small>New</small>
+              <small>New!</small>
             </button>
             <button class="mail-message unread" id="morseHintEmail" type="button" data-mail-reader="morseHintMailReader">
               <strong>Unknown</strong>
               <span>A recording was left behind</span>
-              <small>New</small>
+              <small>New!</small>
             </button>
           </div>
 
@@ -546,7 +546,7 @@
 
       <div class="key-puzzle-content">
         <div class="key-rack-stage" id="keyRackStage">
-          <img class="key-rack-background" src="./Assets/Mail/key_rack.png" alt="Six-hook wooden key rack">
+          <img class="key-rack-background" src="./Assets/mail/key_rack.png" alt="Six-hook wooden key rack">
           <div class="key-rack-slots" id="keyRackSlots" aria-label="Key rack positions">
             <button class="key-slot" type="button" data-slot="0" aria-label="First hook"></button>
             <button class="key-slot" type="button" data-slot="1" aria-label="Second hook"></button>
@@ -576,7 +576,7 @@
         </div>
       </header>
       <div class="puzzle-viewer-content paper-viewer-content">
-        <img src="./Assets/Mail/torn_paper.png" alt="Scanned sheet of paper containing the next clue" draggable="false">
+        <img src="./Assets/mail/torn_paper.png" alt="Scanned sheet of paper containing the next clue" draggable="false">
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
@@ -641,6 +641,10 @@
         <button class="toolbar-button picture-arrow" id="picturePrevious" type="button" aria-label="Previous picture">◀</button>
         <span id="pictureCounter">1 / 6</span>
         <button class="toolbar-button picture-arrow" id="pictureNext" type="button" aria-label="Next picture">▶</button>
+        <span class="picture-toolbar-separator" aria-hidden="true"></span>
+        <button class="toolbar-button picture-zoom-button" id="pictureZoomOut" type="button" aria-label="Zoom out">Zoom -</button>
+        <button class="toolbar-button picture-zoom-button" id="pictureZoomIn" type="button" aria-label="Zoom in">Zoom +</button>
+        <span id="pictureZoomValue" class="picture-zoom-value">100%</span>
       </div>
 
       <div class="picture-stage" id="pictureStage">

@@ -978,8 +978,36 @@
     }
   });
 
-  document.getElementById('previousBtn')
-    ?.addEventListener('click', previousTrack);
+  const previousBtn = document.getElementById('previousBtn');
+  let previousClickTimer = null;
+
+  function restartCurrentTrack() {
+    if (!audio || tracks.length === 0) return;
+
+    if (!audio.src) {
+      loadTrack(currentIndex, true);
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.play().catch(error => {
+      console.warn('Audio playback failed.', error);
+    });
+  }
+
+  previousBtn?.addEventListener('click', () => {
+    clearTimeout(previousClickTimer);
+    previousClickTimer = setTimeout(() => {
+      restartCurrentTrack();
+      previousClickTimer = null;
+    }, 250);
+  });
+
+  previousBtn?.addEventListener('dblclick', () => {
+    clearTimeout(previousClickTimer);
+    previousClickTimer = null;
+    previousTrack();
+  });
 
   document.getElementById('nextBtn')
     ?.addEventListener('click', nextTrack);
@@ -1065,7 +1093,33 @@
   const picturePrevious = document.getElementById('picturePrevious');
   const pictureNext = document.getElementById('pictureNext');
   const pictureCounter = document.getElementById('pictureCounter');
+  const pictureStage = document.getElementById('pictureStage');
+  const pictureZoomOut = document.getElementById('pictureZoomOut');
+  const pictureZoomIn = document.getElementById('pictureZoomIn');
+  const pictureZoomValue = document.getElementById('pictureZoomValue');
   let currentPictureIndex = 0;
+  let pictureZoom = 1;
+  const pictureZoomStep = 0.25;
+  const pictureZoomMin = 0.5;
+  const pictureZoomMax = 2.5;
+
+  function updatePictureZoom() {
+    if (pictureStage) {
+      pictureStage.style.setProperty('--picture-zoom', pictureZoom);
+    }
+
+    if (pictureZoomValue) {
+      pictureZoomValue.textContent = `${Math.round(pictureZoom * 100)}%`;
+    }
+
+    if (pictureZoomOut) {
+      pictureZoomOut.disabled = pictureZoom <= pictureZoomMin;
+    }
+
+    if (pictureZoomIn) {
+      pictureZoomIn.disabled = pictureZoom >= pictureZoomMax;
+    }
+  }
 
 function showPictureSlide(index) {
   if (!pictureSlides.length) return;
@@ -1096,6 +1150,18 @@ function showPictureSlide(index) {
   pictureNext?.addEventListener('click', () => {
     showPictureSlide(currentPictureIndex + 1);
   });
+
+  pictureZoomOut?.addEventListener('click', () => {
+    pictureZoom = Math.max(pictureZoomMin, pictureZoom - pictureZoomStep);
+    updatePictureZoom();
+  });
+
+  pictureZoomIn?.addEventListener('click', () => {
+    pictureZoom = Math.min(pictureZoomMax, pictureZoom + pictureZoomStep);
+    updatePictureZoom();
+  });
+
+  updatePictureZoom();
 
   function enableFishDragging(fish) {
     const slide = fish.closest('.fish-puzzle-canvas');
@@ -1628,17 +1694,16 @@ function showPictureSlide(index) {
     mailReaderPanels.forEach(panel => {
       panel.hidden = panel.id !== readerId;
     });
-
     mailMessages.forEach(message => {
       const active = message.dataset.mailReader === readerId;
       message.classList.toggle('active', active);
 
-      if (active && message.classList.contains('unread')) {
+      if (active) {
         message.classList.remove('unread');
         message.classList.add('seen');
 
-        const status = message.querySelector('small');
-        if (status) status.textContent = 'Seen';
+        const mailStatus = message.querySelector('small');
+        if (mailStatus) mailStatus.textContent = 'Seen';
       }
     });
   }

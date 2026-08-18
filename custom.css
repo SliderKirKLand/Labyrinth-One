@@ -389,6 +389,22 @@ body {
   line-height: 1;
 }
 
+.window-control.maximize {
+  font-size: 0;
+  position: relative;
+}
+
+.window-control.maximize::after {
+  content: "❐";
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+
+  position: relative;
+  left: 0px;
+  top: -3px;
+}
+
 .window-control:hover,
 .window-control.close:hover {
   background: var(--win98-gray);
@@ -1389,17 +1405,56 @@ body::after {
   position: absolute;
   z-index: 5;
   padding: 0;
+  box-sizing: border-box;
   border: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   cursor: pointer;
+  outline: none;
 }
 
-.hotspot-red { left: 13.8%; top: 13.7%; width: 10%; height: 6.8%; }
-.hotspot-yellow { left: 85.8%; top: 18.9%; width: 8.5%; height: 5.2%; }
-.hotspot-orange { left: 20.4%; top: 70.4%; width: 10.5%; height: 7.3%; }
-.hotspot-green { left: 73.7%; top: 80.4%; width: 8.7%; height: 6.8%; }
-.hotspot-white { left: 86.8%; top: 49.8%; width: 10%; height: 7%; border-radius: 50%; }
+.hotspot-red { left: 15%; top: 14.5%; width: 7%; height: 4.2%; transform: rotate(55deg);}
+.hotspot-yellow { left: 85.8%; top: 19.1%; width: 8%; height: 5%; }
+.hotspot-orange { left: 22.1%; top: 72%; width: 7.5%; height: 4.5%; transform: rotate(54deg); }
+.hotspot-green { left: 73.7%; top: 80.8%; width: 8.2%; height: 4.9%; transform: rotate(-7deg);}
+.hotspot-white { left: 87.2%; top: 50.2%; width: 9.1%; height: 5.8%; border-radius: 50%; }
+
+
+/* Pulse stays inside the exact clickable hotspot dimensions. */
+.puzzle-hotspot:not(.is-complete) {
+  animation: subway-hotspot-pulse 1.8s ease-in-out infinite;
+}
+
+.puzzle-hotspot {
+  --pulse-color: 255, 255, 255;
+}
+
+.hotspot-white {
+  --pulse-color: 255, 0, 0;
+}
+
+@keyframes subway-hotspot-pulse {
+  0%,
+  100% {
+    border-color: rgba(var(--pulse-color), 0.25);
+    box-shadow: inset 0 0 0 1px rgba(var(--pulse-color), 0.15);
+    background: rgba(var(--pulse-color), 0.02);
+  }
+
+  50% {
+    border-color: rgba(var(--pulse-color), 0.9);
+    box-shadow: inset 0 0 0 1px rgba(var(--pulse-color), 0.65);
+    background: rgba(var(--pulse-color), 0.12);
+  }
+}
+
+.puzzle-hotspot:hover,
+.puzzle-hotspot:focus-visible {
+  animation: none;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 0 1px #000080;
+}
 
 .puzzle-map.show-hotspots .puzzle-hotspot {
   border-color: #ff00ff;
@@ -1590,13 +1645,31 @@ body::after {
   font-weight: 700;
 }
 
+.picture-toolbar-separator {
+  width: 1px;
+  height: 24px;
+  margin-left: 2px;
+  background: var(--win98-dark);
+  box-shadow: 1px 0 var(--win98-light);
+}
+
+.picture-zoom-button {
+  min-width: 66px;
+}
+
+.picture-zoom-value {
+  min-width: 38px;
+  text-align: center;
+  font: 11px "MS Sans Serif", Tahoma, sans-serif;
+}
+
 .picture-stage {
   position: relative;
   container-type: size;
   flex: 1;
   min-height: 0;
   margin: 3px;
-  overflow: hidden;
+  overflow: auto;
   border: 2px solid;
   border-color: var(--win98-dark) var(--win98-light) var(--win98-light) var(--win98-dark);
   background: #000;
@@ -1612,6 +1685,8 @@ body::after {
 
 .picture-slide.active {
   display: block;
+  transform: scale(var(--picture-zoom, 1));
+  transform-origin: top left;
 }
 
 .picture-background,
@@ -3047,12 +3122,12 @@ body::after {
 }
 
 .mail-message.unread {
-  background: #87afe3;
+  background: #87e3d1;
   font-weight: bold;
 }
 
 .mail-message.unread.active {
-  background: #99ddff;
+  background: #99ffd5;
 }
 
 .mail-message.unread small {
@@ -3072,8 +3147,8 @@ body::after {
 }
 
 #mailWindow .mail-message.active {
-  background: #9d9d9e !important;
-  outline: 1px dotted #000080;
+  background: #c2c2c2 !important;
+  outline: 2px dotted #074fd4;
   outline-offset: -2px;
 }
 
@@ -3081,20 +3156,26 @@ body::after {
   background: #b9ddff !important;
 }
 
+#mailWindow .mail-message small {
+  font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+}
+
 #mailWindow .mail-message.unread small {
-  color: #ff0000;
-  font-weight: bold;
-  font-style: italic;
+  color: #ff0000 !important;
+  font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
 }
 
 #mailWindow .mail-message.seen small {
-  color: #333;
-  font-weight: normal;
-  font-style: normal;
-}
-
-#mailWindow .mail-message small {
+  color: #333 !important;
   font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif !important;
-  font-size: 12px;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
 }
-
