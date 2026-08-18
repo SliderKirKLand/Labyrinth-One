@@ -3036,3 +3036,65 @@ body::after {
   .login-content { grid-template-columns: 1fr; }
   .login-computer-icon { margin: 0 auto; }
 }
+
+/* Mail readability update: unread, selected, and New states */
+.mail-message {
+  background: #d6d6d6;
+}
+
+.mail-message.active {
+  background: #ffffff;
+}
+
+.mail-message.unread {
+  background: #87afe3;
+  font-weight: bold;
+}
+
+.mail-message.unread.active {
+  background: #99ddff;
+}
+
+.mail-message.unread small {
+  color: #ff0000;
+  font-weight: bold;
+  font-style: italic;
+}
+
+/* Mail selection/read-state update */
+#mailWindow .mail-message {
+  background: #d6d6d6;
+}
+
+#mailWindow .mail-message.unread {
+  background: #87afe3;
+  font-weight: bold;
+}
+
+#mailWindow .mail-message.active {
+  background: #9d9d9e !important;
+  outline: 1px dotted #000080;
+  outline-offset: -2px;
+}
+
+#mailWindow .mail-message.unread.active {
+  background: #b9ddff !important;
+}
+
+#mailWindow .mail-message.unread small {
+  color: #ff0000;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#mailWindow .mail-message.seen small {
+  color: #333;
+  font-weight: normal;
+  font-style: normal;
+}
+
+#mailWindow .mail-message small {
+  font-family: "MSW98UI", "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px;
+}
+

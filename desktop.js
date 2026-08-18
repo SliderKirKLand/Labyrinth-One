@@ -1628,10 +1628,18 @@ function showPictureSlide(index) {
     mailReaderPanels.forEach(panel => {
       panel.hidden = panel.id !== readerId;
     });
+
     mailMessages.forEach(message => {
       const active = message.dataset.mailReader === readerId;
       message.classList.toggle('active', active);
-      if (active) message.classList.remove('unread');
+
+      if (active && message.classList.contains('unread')) {
+        message.classList.remove('unread');
+        message.classList.add('seen');
+
+        const status = message.querySelector('small');
+        if (status) status.textContent = 'Seen';
+      }
     });
   }
 
@@ -1650,12 +1658,12 @@ function showPictureSlide(index) {
   });
 
   const keyFiles = {
-    1: './Assets/Mail/Key_1.png',
-    2: './Assets/Mail/Key_2.png',
-    3: './Assets/Mail/Key_3.png',
-    4: './Assets/Mail/Key_4.png',
-    5: './Assets/Mail/Key_5.png',
-    6: './Assets/Mail/Key_6.png'
+    1: './Assets/mail/Key_1.png',
+    2: './Assets/mail/Key_2.png',
+    3: './Assets/mail/Key_3.png',
+    4: './Assets/mail/Key_4.png',
+    5: './Assets/mail/Key_5.png',
+    6: './Assets/mail/Key_6.png'
   };
 
   let keyOrder = [4, 1, 6, 2, 5, 3];
