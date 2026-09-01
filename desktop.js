@@ -1873,6 +1873,7 @@ function showPictureSlide(index) {
       keyPuzzleMessage.textContent = 'Perfect. The keys are back in the correct order. You have a new email.';
       if (keyThanksEmail) keyThanksEmail.hidden = false;
       if (mailInboxCount) mailInboxCount.textContent = '3';
+      openWindow('mailWindow')
       playSoundEffect('notify');
       checkKeyPuzzle.disabled = true;
       resetKeyPuzzle.disabled = true;
