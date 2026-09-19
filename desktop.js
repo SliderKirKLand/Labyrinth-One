@@ -68,7 +68,7 @@
   let topZ = 20;
 
   const appIconClass = {
-    viewerWindow: 'model-icon',
+    viewerWindow: 'viewer-icon',
     computerWindow: 'computer-icon',
     musicWindow: 'disk-icon',
     mailWindow: 'mail-icon',
@@ -233,9 +233,6 @@
     icon.className =
       `task-app-icon ${appIconClass[win.id] || ''}`;
 
-    if (win.id === 'viewerWindow') {
-      icon.textContent = '3D';
-    }
 
     const label = document.createElement('span');
 
@@ -1163,56 +1160,56 @@ function showPictureSlide(index) {
 
   updatePictureZoom();
 
-  function enableFishDragging(fish) {
-    const slide = fish.closest('.fish-puzzle-canvas');
+  function enablePicturePieceDragging(piece) {
+    const slide = piece.closest('.fish-puzzle-canvas, .daisy-puzzle-canvas');
     if (!slide) return;
 
     let dragging = false;
     let pointerOffsetX = 0;
     let pointerOffsetY = 0;
 
-    fish.addEventListener('pointerdown', event => {
+    piece.addEventListener('pointerdown', event => {
       dragging = true;
-      fish.setPointerCapture(event.pointerId);
+      piece.setPointerCapture(event.pointerId);
 
-      const fishBox = fish.getBoundingClientRect();
-      pointerOffsetX = event.clientX - fishBox.left;
-      pointerOffsetY = event.clientY - fishBox.top;
-      fish.classList.add('is-dragging');
+      const pieceBox = piece.getBoundingClientRect();
+      pointerOffsetX = event.clientX - pieceBox.left;
+      pointerOffsetY = event.clientY - pieceBox.top;
+      piece.classList.add('is-dragging');
       event.preventDefault();
     });
 
-    fish.addEventListener('pointermove', event => {
+    piece.addEventListener('pointermove', event => {
       if (!dragging) return;
 
       const slideBox = slide.getBoundingClientRect();
-      const fishBox = fish.getBoundingClientRect();
-      const maxLeft = Math.max(0, slideBox.width - fishBox.width);
-      const maxTop = Math.max(0, slideBox.height - fishBox.height);
+      const pieceBox = piece.getBoundingClientRect();
+      const maxLeft = Math.max(0, slideBox.width - pieceBox.width);
+      const maxTop = Math.max(0, slideBox.height - pieceBox.height);
       const left = Math.min(maxLeft, Math.max(0, event.clientX - slideBox.left - pointerOffsetX));
       const top = Math.min(maxTop, Math.max(0, event.clientY - slideBox.top - pointerOffsetY));
 
       const leftPercent = slideBox.width ? (left / slideBox.width) * 100 : 0;
       const topPercent = slideBox.height ? (top / slideBox.height) * 100 : 0;
 
-      fish.style.left = `${leftPercent}%`;
-      fish.style.top = `${topPercent}%`;
-      fish.style.right = 'auto';
-      fish.style.bottom = 'auto';
+      piece.style.left = `${leftPercent}%`;
+      piece.style.top = `${topPercent}%`;
+      piece.style.right = 'auto';
+      piece.style.bottom = 'auto';
     });
 
     const stopDragging = event => {
       if (!dragging) return;
       dragging = false;
-      fish.classList.remove('is-dragging');
-      if (fish.hasPointerCapture(event.pointerId)) fish.releasePointerCapture(event.pointerId);
+      piece.classList.remove('is-dragging');
+      if (piece.hasPointerCapture(event.pointerId)) piece.releasePointerCapture(event.pointerId);
     };
 
-    fish.addEventListener('pointerup', stopDragging);
-    fish.addEventListener('pointercancel', stopDragging);
+    piece.addEventListener('pointerup', stopDragging);
+    piece.addEventListener('pointercancel', stopDragging);
   }
 
-  document.querySelectorAll('.draggable-fish').forEach(enableFishDragging);
+  document.querySelectorAll('.draggable-fish, .draggable-daisy-cover').forEach(enablePicturePieceDragging);
   showPictureSlide(0);
 
   /*
@@ -1278,6 +1275,7 @@ function showPictureSlide(index) {
         'pentium 333'
       ],
       displayAnswer: 'Intel Pentium 333',
+      pathPart: '/archive/',
       hints: [
         'Check the Computer Specifications.', 
       ]
@@ -1287,6 +1285,7 @@ function showPictureSlide(index) {
       question: 'According to Computer Specifications, how much memory does this workstation have?',
       answers: ['64 mb sdram', '64mb sdram', '64 mb', '64mb', '64'],
       displayAnswer: '64 MB SDRAM',
+      pathPart: 'main-terminal/',
       hints: [
         'Check Computer Specifications.',
       ]
@@ -1296,6 +1295,7 @@ function showPictureSlide(index) {
       question: 'Open Picture and go to the second image. What flower is shown?',
       answers: ['daisy', 'a daisy', 'daisy flower', 'a daisy flower'],
       displayAnswer: 'Daisy',
+      pathPart: 'recovery/',
       hints: [
         'Check Picture.',
       ]
@@ -1308,6 +1308,7 @@ function showPictureSlide(index) {
 15, 19`,
       answers: ['labyrinth os', 'labyrinthos', 'labyrinth', 'labyrinth os 1.0', 'labyrinthos1.0'],
       displayAnswer: 'LABYRINTH OS',
+      pathPart: 'identity/confirmed/',
       hints: [
         'Alphabetic letters means something else.',
       ]
@@ -1385,6 +1386,12 @@ function showPictureSlide(index) {
       completedAnswer.className = 'trivia-completed-answer';
       completedAnswer.textContent = puzzle.displayAnswer;
       triviaAnswers.append(completedAnswer);
+      if (puzzle.pathPart) {
+        const pathPart = document.createElement('div');
+        pathPart.className = 'trivia-path-part';
+        pathPart.textContent = `Recovered path segment: ${puzzle.pathPart}`;
+        triviaAnswers.append(pathPart);
+      }
       showPuzzleMessage(
         puzzle.final ? 'Completed. Clue #2 is available.' : 'Completed. The accepted answer is shown.',
         'correct'
@@ -1723,12 +1730,12 @@ function showPictureSlide(index) {
   });
 
   const keyFiles = {
-    1: './Assets/Mail/Key_1.png',
-    2: './Assets/Mail/Key_2.png',
-    3: './Assets/Mail/Key_3.png',
-    4: './Assets/Mail/Key_4.png',
-    5: './Assets/Mail/Key_5.png',
-    6: './Assets/Mail/Key_6.png'
+    1: './Assets/mail/Key_1.png',
+    2: './Assets/mail/Key_2.png',
+    3: './Assets/mail/Key_3.png',
+    4: './Assets/mail/Key_4.png',
+    5: './Assets/mail/Key_5.png',
+    6: './Assets/mail/Key_6.png'
   };
 
   let keyOrder = [4, 1, 6, 2, 5, 3];
@@ -1873,7 +1880,6 @@ function showPictureSlide(index) {
       keyPuzzleMessage.textContent = 'Perfect. The keys are back in the correct order. You have a new email.';
       if (keyThanksEmail) keyThanksEmail.hidden = false;
       if (mailInboxCount) mailInboxCount.textContent = '3';
-      openWindow('mailWindow')
       playSoundEffect('notify');
       checkKeyPuzzle.disabled = true;
       resetKeyPuzzle.disabled = true;

@@ -156,15 +156,15 @@
 
             <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/bg1.png" data-wallpaper-name="Background 1">
               <span class="wallpaper-preview" style="background-image:url('./Assets/bg1.png')"></span>
-              <span style="color:blue">Sunset 1</span>
+              <span>Background 1</span>
             </button>
             <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/bg2.png" data-wallpaper-name="Background 2">
               <span class="wallpaper-preview" style="background-image:url('./Assets/bg2.png')"></span>
-              <span style="color:blue">Sunset 2</span>
+              <span>Background 2</span>
             </button>
               <button class="wallpaper-choice" type="button" data-wallpaper="./Assets/daikoglobal2.png" data-wallpaper-name="Daiko">
               <span class="wallpaper-preview" style="background-image:url('./Assets/daikoglobal2.png')"></span>
-              <span style="color:blue">Daiko</span>
+              <span>Daiko</span>
             </button>
           </div>
           <p class="wallpaper-status" id="wallpaperStatus">Current wallpaper: Daiko</p>
@@ -219,11 +219,11 @@
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
 
-    <section class="app-window puzzle-viewer-window postcard-viewer-window" id="postcardViewerWindow" data-app="postcard.jpg" style="--x: 29vw; --y: 10vh; --w: 620px; --h: 500px;" hidden>
+    <section class="app-window puzzle-viewer-window postcard-viewer-window" id="postcardViewerWindow" data-app="recovered-directory" style="--x: 29vw; --y: 10vh; --w: 620px; --h: 500px;" hidden>
       <header class="titlebar" data-drag-handle>
         <div class="window-title">
           <span class="mini-app-icon image-file-icon"></span>
-          <span>postcard.jpg</span>
+          <span>recovered-directory</span>
         </div>
         <div class="window-controls">
           <button class="window-control minimize" data-window-action="minimize" aria-label="Minimize">−</button>
@@ -232,7 +232,14 @@
         </div>
       </header>
       <div class="postcard-viewer-content">
-        <img src="./Assets/New folder/postcard.jpg" alt="Recovered postcard" draggable="false">
+        <div class="directory-clue" role="document" aria-label="Recovered folder directory">
+          <div class="directory-heading">ARCHIVE PATH RESTORED</div>
+          <div class="directory-window">
+            <div class="directory-label">Recovered directory</div>
+            <a class="directory-path" href="#/archive/main-terminal/recovery/identity/confirmed/">/archive/main-terminal/recovery/identity/confirmed/</a>
+          </div>
+          <div class="directory-instruction">Enter this folder directory into the final terminal.</div>
+        </div>
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
@@ -539,14 +546,14 @@
       </header>
 
       <div class="key-puzzle-toolbar">
-        <span>Place every key on the rack, then press Done. Scroll below to see keys</span>
+        <span>Place every key on the rack, then press Done.</span>
         <button class="toolbar-button" id="resetKeyPuzzle" type="button">Reset</button>
         <button class="toolbar-button" id="checkKeyPuzzle" type="button">Done</button>
       </div>
 
       <div class="key-puzzle-content">
         <div class="key-rack-stage" id="keyRackStage">
-          <img class="key-rack-background" src="./Assets/Mail/key_rack.png" alt="Six-hook wooden key rack">
+          <img class="key-rack-background" src="./Assets/mail/key_rack.png" alt="Six-hook wooden key rack">
           <div class="key-rack-slots" id="keyRackSlots" aria-label="Key rack positions">
             <button class="key-slot" type="button" data-slot="0" aria-label="First hook"></button>
             <button class="key-slot" type="button" data-slot="1" aria-label="Second hook"></button>
@@ -576,7 +583,7 @@
         </div>
       </header>
       <div class="puzzle-viewer-content paper-viewer-content">
-        <img src="./Assets/Mail/torn_paper.png" alt="Scanned sheet of paper containing the next clue" draggable="false">
+        <img src="./Assets/mail/torn_paper.png" alt="Scanned sheet of paper containing the next clue" draggable="false">
       </div>
       <div class="resize-handle" data-resize-handle aria-hidden="true"></div>
     </section>
@@ -652,8 +659,16 @@
           <img class="guide-picture" src="./Assets/image/pizza.png" alt="Archived landscape picture">
         </section>
 
-        <section class="picture-slide" data-picture-slide aria-label="Archived lake picture">
-          <img class="guide-picture" src="./Assets/image/daisy.png" alt="Archived lake picture">
+        <section class="picture-slide interactive-daisy-slide" data-picture-slide aria-label="Daisy picture puzzle">
+          <div class="daisy-puzzle-canvas">
+            <img class="picture-background" src="./Assets/image/daisy.png" alt="Daisy flower puzzle">
+
+            <img class="draggable-daisy-cover daisy-cover-d" src="./Assets/image/yellow_circle.png" alt="Draggable yellow cover" draggable="false">
+            <img class="draggable-daisy-cover daisy-cover-a" src="./Assets/image/yellow_circle.png" alt="Draggable yellow cover" draggable="false">
+            <img class="draggable-daisy-cover daisy-cover-i" src="./Assets/image/yellow_circle.png" alt="Draggable yellow cover" draggable="false">
+            <img class="draggable-daisy-cover daisy-cover-s" src="./Assets/image/yellow_circle.png" alt="Draggable yellow cover" draggable="false">
+            <img class="draggable-daisy-cover daisy-cover-y" src="./Assets/image/yellow_circle.png" alt="Draggable yellow cover" draggable="false">
+          </div>
         </section>
 
         <section class="picture-slide" data-picture-slide data-slide-name="3 / 6?" aria-label="3 / 6?">

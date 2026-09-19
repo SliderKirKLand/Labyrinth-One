@@ -613,8 +613,13 @@ body {
 .task-app-icon {
   width: 22px;
   height: 22px;
+  flex: 0 0 22px;
   border-radius: 0;
   background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  color: transparent;
   box-shadow: none;
 }
 
@@ -1819,6 +1824,55 @@ body::after {
   }
 }
 
+/* Daisy picture puzzle: yellow covers use the same drag interaction as the fish pieces. */
+.interactive-daisy-slide.active {
+  display: grid;
+  place-items: center;
+}
+
+.daisy-puzzle-canvas {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  container-type: size;
+}
+
+.daisy-puzzle-canvas .picture-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+
+.draggable-daisy-cover {
+  position: absolute;
+  z-index: 5;
+  width: 10%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.draggable-daisy-cover.is-dragging {
+  z-index: 8;
+  cursor: grabbing;
+}
+
+/* Each circle starts directly over one letter in D A I S Y. */
+.daisy-cover-d { left: 12.3%; top: 15.3%; }
+.daisy-cover-a { left: 42.4%; top: 11.7%; }
+.daisy-cover-i { left: 70.0%; top: 17.3%; }
+.daisy-cover-s { left: 34.0%; top: 74.8%; }
+.daisy-cover-y { left: 63.7%; top: 75.0%; }
+
 /* Keep the fish, clues, and background on one 4:3 coordinate surface. */
 .interactive-fish-slide.active {
   display: grid;
@@ -2130,6 +2184,15 @@ body::after {
   background: #fff;
   color: #006400;
   font-weight: bold;
+}
+
+.trivia-path-part {
+  padding: 8px 9px;
+  border: 1px solid #808080;
+  background: #ffffe1;
+  color: #000;
+  font: 700 13px "Courier New", monospace;
+  overflow-wrap: anywhere;
 }
 
 #triviaQuestion {
@@ -2993,6 +3056,58 @@ body::after {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.directory-clue {
+  width: min(92%, 660px);
+  min-height: 280px;
+  padding: 34px 42px;
+  box-sizing: border-box;
+  color: #000;
+  background: #c0c0c0;
+  border: 3px solid;
+  border-color: #fff #404040 #404040 #fff;
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+}
+
+.directory-heading {
+  padding: 7px 10px;
+  color: #fff;
+  background: #000080;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.directory-window {
+  margin-top: 28px;
+  padding: 18px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #404040 #fff #fff #404040;
+}
+
+.directory-label {
+  margin-bottom: 13px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.directory-path {
+  display: block;
+  color: #000080;
+  font: 700 clamp(14px, 2.4vw, 22px) "Courier New", monospace;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+}
+
+.directory-path:visited {
+  color: #800080;
+}
+
+.directory-instruction {
+  margin-top: 26px;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 
